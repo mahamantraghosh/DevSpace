@@ -2,10 +2,28 @@ import { pusherServer } from "@/lib/pusher";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const data = await req.formData();
-  const socketId = data.get("socket_id") as string;
-  const channelName = data.get("channel_name") as string;
-  const username = data.get("username") as string; // We'll pass this in the request
+  let socketId: string | null = null;
+  let channelName: string | null = null;
+  let username: string | null = null;
+
+  try {
+    const contentType = req.headers.get("content-type") || "";
+    
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      const bodyText = await req.text();
+      const params = new URLSearchParams(bodyText);
+      socketId = params.get("socket_id");
+      channelName = params.get("channel_name");
+      username = params.get("username");
+    } else {
+      const data = await req.formData();
+      socketId = data.get("socket_id") as string;
+      channelName = data.get("channel_name") as string;
+      username = data.get("username") as string;
+    }
+  } catch (err) {
+    console.error("Auth Parsing Error:", err);
+  }
 
   if (!socketId || !channelName || !username) {
     return new Response("Missing parameters", { status: 400 });

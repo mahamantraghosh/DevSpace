@@ -31,13 +31,17 @@ export default function Hero() {
 
     const handleJoinSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!roomId.trim()) return;
+        const trimmedRoomId = roomId.trim();
+        const trimmedUsername = username.trim();
 
-        if (username.trim()) {
-            localStorage.setItem("devspace-username", username.trim());
+        if (!trimmedRoomId) return;
+
+        if (trimmedUsername) {
+            localStorage.setItem("devspace-username", trimmedUsername);
         }
         
-        router.push(`/room/${roomId.trim().toLowerCase()}`);
+        setIsModalOpen(false);
+        router.push(`/room/${trimmedRoomId.toLowerCase()}`);
     };
 
     return (
