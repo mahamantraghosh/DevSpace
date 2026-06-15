@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevSpace
 
-## Getting Started
+A real-time collaborative coding platform where developers can create rooms, code together, communicate instantly, and preview output live.
 
-First, run the development server:
+DevSpace is designed to make collaborative development simple, fast, and interactive.
+
+---
+
+##  Features
+
+-  Create and join collaborative rooms
+-  Real-time shared code editor
+-  Live room chat
+-  Instant code preview
+-  Active user presence
+-  Responsive interface
+-  Real-time synchronization
+
+---
+
+##  Tech Stack
+
+### Frontend
+- Next.js
+- React
+- Tailwind CSS
+
+### Backend
+- Node.js
+- Express.js
+
+### Real-Time
+- Socket.io
+
+### Database (optional)
+- MongoDB
+
+### Editor
+- Monaco Editor
+
+---
+
+## Project Structure
+
+```bash
+devspace/
+│
+├── frontend/
+├── backend/
+├── public/
+├── components/
+├── sockets/
+├── utils/
+└── README.md
+```
+
+---
+
+##  Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/your-username/devspace.git
+```
+
+Move into the project:
+
+```bash
+cd devspace
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📌 Current Status
 
-To learn more about Next.js, take a look at the following resources:
+🚧 Under active development.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Features and documentation will continue to evolve.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🗺 Roadmap
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [ ] Real-time collaborative editor
+- [ ] Room management
+- [ ] Live chat
+- [ ] Code preview
+- [ ] Authentication
+- [ ] Deployment
+- [ ] Additional developer tools
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🤝 Contributing
+
+Contributions, ideas, and feedback are welcome.
+
+```bash
+Fork → Create Branch → Commit → Push → Pull Request
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
