@@ -7,6 +7,10 @@ export async function GET(
 ) {
   const { roomId } = await params;
 
+  if (!redis) {
+    return NextResponse.json({ error: "Redis connection not initialized. Check REDIS_URL." }, { status: 500 });
+  }
+
   // Default initial state
   const defaultCode = {
     html: "<!-- Welcome to DevSpace! -->\n<div class='playground'>\n  <h1>Collaborative Playground</h1>\n  <p>Start coding together!</p>\n</div>",
@@ -32,6 +36,6 @@ export async function GET(
     return NextResponse.json(JSON.parse(rawData));
   } catch (error) {
     console.error("Redis Error:", error);
-    return NextResponse.json({ error: "Failed to fetch room" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch room from Redis" }, { status: 500 });
   }
 }

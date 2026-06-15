@@ -6,6 +6,10 @@ export async function POST(req: Request) {
   let channelName: string | null = null;
   let username: string | null = null;
 
+  if (!pusherServer) {
+    return new Response("Pusher server not initialized", { status: 500 });
+  }
+
   try {
     const contentType = req.headers.get("content-type") || "";
     

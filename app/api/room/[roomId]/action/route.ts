@@ -11,6 +11,10 @@ export async function POST(
   const { type, payload } = body;
   const channelName = `presence-${roomId}`;
 
+  if (!redis || !pusherServer) {
+    return NextResponse.json({ error: "Server infrastructure not initialized." }, { status: 500 });
+  }
+
   try {
     if (type === "editor-change") {
       const rawRoom = await redis.get(`room:${roomId}`);
