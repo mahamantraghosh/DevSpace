@@ -13,7 +13,7 @@ export async function GET(
 
   // Default initial state
   const defaultCode = {
-    html: "<!-- welcomeee to Mahamantra's DevSpace! -->\n<div class='playground'>\n  <h1>We can write codes here together dosto! lessgooog</h1>\n  <p>Ar ki bola jay??</p>\n</div>",
+    html: "<!-- welcomeee to Mahamantra's DevSpace! -->\n<div class='playground'>\n  <h1>We can write codes here together dosto! lessgooog</h1>\n  <p>Ar ki bola jay??</p>\n <p>KRISHNAAAA!!</p>\n</div>",
     css: "body { background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }",
     js: "console.log('Hello from Krishna Kanhaiyaa);"
   };
