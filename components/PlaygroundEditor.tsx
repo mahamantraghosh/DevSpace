@@ -23,6 +23,7 @@ export default function PlaygroundEditor({
   roomId,
   username
 }: PlaygroundEditorProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const broadcastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -37,6 +38,7 @@ export default function PlaygroundEditor({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEditorDidMount = (editor: any, monaco: Monaco) => {
     editorRef.current = editor;
     monaco.editor.defineTheme("devspace-dark", {
@@ -92,16 +94,18 @@ export default function PlaygroundEditor({
 
   useEffect(() => {
     if (code !== localCode) {
-      setLocalCode(code || "");
+      Promise.resolve().then(() => {
+        setLocalCode(code || "");
+      });
     }
-  }, [code]);
+  }, [code, localCode]);
 
   return (
     <div className="flex flex-col h-full bg-[#09090b] relative">
       <div className="flex items-center justify-between border-b border-gray-900 bg-gray-950 px-4 py-1.5 h-[45px]">
         <div className="flex gap-1">
           {["html", "css", "js"].map((tab) => (
-            <button key={tab} onClick={() => setActiveTab(tab as any)} className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition cursor-pointer ${activeTab === tab ? "bg-blue-950/20 border-blue-500/30 text-blue-400" : "border-transparent text-gray-400"}`}>
+            <button key={tab} onClick={() => setActiveTab(tab as "html" | "css" | "js")} className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition cursor-pointer ${activeTab === tab ? "bg-blue-950/20 border-blue-500/30 text-blue-400" : "border-transparent text-gray-400"}`}>
               {tab === "html" && <FileCode size={14} className="inline mr-1" />}
               {tab === "css" && <Braces size={14} className="inline mr-1" />}
               {tab === "js" && <Terminal size={14} className="inline mr-1" />}

@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Pusher from "pusher-js";
+import Pusher, { PresenceChannel } from "pusher-js";
 import { Code, Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check } from "lucide-react";
 import PlaygroundEditor from "@/components/PlaygroundEditor";
 import LivePreview from "@/components/LivePreview";
@@ -13,6 +13,13 @@ import confetti from "canvas-confetti";
 interface User {
   socketId: string;
   username: string;
+}
+
+interface PusherMember {
+  id: string;
+  info: {
+    username: string;
+  };
 }
 
 interface Message {
@@ -51,8 +58,10 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   useEffect(() => {
     const savedUsername = localStorage.getItem("devspace-username");
     if (savedUsername) {
-      setUsername(savedUsername);
-      setShowPrompt(false);
+      Promise.resolve().then(() => {
+        setUsername(savedUsername);
+        setShowPrompt(false);
+      });
     }
   }, []);
 
@@ -92,21 +101,21 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       setPusherConnected(false);
     });
 
-    const channel = pusher.subscribe(`presence-${roomId}`);
+    const channel = pusher.subscribe(`presence-${roomId}`) as PresenceChannel;
 
     channel.bind("pusher:subscription_succeeded", () => {
       const members: User[] = [];
-      channel.members.each((member: any) => {
+      channel.members.each((member: PusherMember) => {
         members.push({ socketId: member.id, username: member.info.username });
       });
       setUsers(members);
     });
 
-    channel.bind("pusher:member_added", (member: any) => {
+    channel.bind("pusher:member_added", (member: PusherMember) => {
       setUsers((prev) => [...prev, { socketId: member.id, username: member.info.username }]);
     });
 
-    channel.bind("pusher:member_removed", (member: any) => {
+    channel.bind("pusher:member_removed", (member: PusherMember) => {
       setUsers((prev) => prev.filter((u) => u.socketId !== member.id));
     });
 

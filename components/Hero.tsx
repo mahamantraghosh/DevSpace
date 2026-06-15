@@ -14,7 +14,9 @@ export default function Hero() {
     useEffect(() => {
         const savedUsername = localStorage.getItem("devspace-username");
         if (savedUsername) {
-            setUsername(savedUsername);
+            Promise.resolve().then(() => {
+                setUsername(savedUsername);
+            });
         }
     }, []);
 
