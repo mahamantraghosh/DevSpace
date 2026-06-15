@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Pusher, { PresenceChannel } from "pusher-js";
-import { Code, Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check } from "lucide-react";
+import { Code, Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check, AlertCircle } from "lucide-react";
 import PlaygroundEditor from "@/components/PlaygroundEditor";
 import LivePreview from "@/components/LivePreview";
 import ChatPanel from "@/components/ChatPanel";
@@ -51,6 +51,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [activeTab, setActiveTab] = useState<"html" | "css" | "js">("html");
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTabSidebar, setActiveTabSidebar] = useState<"users" | "chat">("users");
+  const [error, setError] = useState<string | null>(null);
 
   const [currentUserSocketId, setCurrentUserSocketId] = useState<string>("");
 
@@ -69,77 +70,105 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   useEffect(() => {
     if (showPrompt || !username || !roomId) return;
 
+    let pusher: Pusher | null = null;
+
     const fetchInitialData = async () => {
       try {
         const res = await fetch(`/api/room/${roomId}/init`);
+        if (!res.ok) {
+          throw new Error(`Failed to fetch room data: ${res.statusText}`);
+        }
         const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        
         setCode(data.code);
         setMessages(data.messages);
         setConnected(true);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Fetch error:", err);
+        setError(err.message || "Failed to initialize room data.");
       }
     };
 
     fetchInitialData();
 
     // Setup Pusher with Presence Channel
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-      authEndpoint: "/api/pusher/auth",
-      auth: {
-        params: { username },
-      },
-    });
+    try {
+      const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
+      const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
 
-    pusher.connection.bind("connected", () => {
-      setCurrentUserSocketId(pusher.connection.socket_id);
-      setPusherConnected(true);
-    });
+      if (!pusherKey || !pusherCluster) {
+        throw new Error("Pusher configuration missing. Check environment variables.");
+      }
 
-    pusher.connection.bind("disconnected", () => {
-      setPusherConnected(false);
-    });
-
-    const channel = pusher.subscribe(`presence-${roomId}`) as PresenceChannel;
-
-    channel.bind("pusher:subscription_succeeded", () => {
-      const members: User[] = [];
-      channel.members.each((member: PusherMember) => {
-        members.push({ socketId: member.id, username: member.info.username });
+      pusher = new Pusher(pusherKey, {
+        cluster: pusherCluster,
+        authEndpoint: "/api/pusher/auth",
+        auth: {
+          params: { username },
+        },
       });
-      setUsers(members);
-    });
 
-    channel.bind("pusher:member_added", (member: PusherMember) => {
-      setUsers((prev) => [...prev, { socketId: member.id, username: member.info.username }]);
-    });
+      pusher.connection.bind("connected", () => {
+        setCurrentUserSocketId(pusher!.connection.socket_id);
+        setPusherConnected(true);
+      });
 
-    channel.bind("pusher:member_removed", (member: PusherMember) => {
-      setUsers((prev) => prev.filter((u) => u.socketId !== member.id));
-    });
+      pusher.connection.bind("disconnected", () => {
+        setPusherConnected(false);
+      });
 
-    channel.bind("editor-update", (data: { codeType: "html" | "css" | "js"; value: string }) => {
-      setCode((prev) => ({
-        ...prev,
-        [data.codeType]: data.value,
-      }));
-    });
+      pusher.connection.bind("error", (err: any) => {
+        console.error("Pusher connection error:", err);
+        // Don't set global error yet, maybe it reconnects
+      });
 
-    channel.bind("typing-update", (data: { username: string; isTyping: boolean }) => {
-      setTypingUsers((prev) => ({
-        ...prev,
-        [data.username]: data.isTyping
-      }));
-    });
+      const channel = pusher.subscribe(`presence-${roomId}`) as PresenceChannel;
 
-    channel.bind("receive-message", (message: Message) => {
-      setMessages((prev) => [...prev, message]);
-    });
+      channel.bind("pusher:subscription_succeeded", () => {
+        const members: User[] = [];
+        channel.members.each((member: PusherMember) => {
+          members.push({ socketId: member.id, username: member.info.username });
+        });
+        setUsers(members);
+      });
+
+      channel.bind("pusher:member_added", (member: PusherMember) => {
+        setUsers((prev) => [...prev, { socketId: member.id, username: member.info.username }]);
+      });
+
+      channel.bind("pusher:member_removed", (member: PusherMember) => {
+        setUsers((prev) => prev.filter((u) => u.socketId !== member.id));
+      });
+
+      channel.bind("editor-update", (data: { codeType: "html" | "css" | "js"; value: string }) => {
+        setCode((prev) => ({
+          ...prev,
+          [data.codeType]: data.value,
+        }));
+      });
+
+      channel.bind("typing-update", (data: { username: string; isTyping: boolean }) => {
+        setTypingUsers((prev) => ({
+          ...prev,
+          [data.username]: data.isTyping
+        }));
+      });
+
+      channel.bind("receive-message", (message: Message) => {
+        setMessages((prev) => [...prev, message]);
+      });
+
+    } catch (err: any) {
+      console.error("Pusher Init Error:", err);
+      setError(err.message || "Failed to initialize real-time connection.");
+    }
 
     return () => {
-      pusher.unsubscribe(`presence-${roomId}`);
-      pusher.disconnect();
+      if (pusher) {
+        pusher.unsubscribe(`presence-${roomId}`);
+        pusher.disconnect();
+      }
     };
   }, [showPrompt, username, roomId]);
 
@@ -164,14 +193,45 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
     setCode((prev) => ({ ...prev, [activeTab]: newVal }));
     
     // Broadcast via API
-    await fetch(`/api/room/${roomId}/action`, {
-      method: "POST",
-      body: JSON.stringify({
-        type: "editor-change",
-        payload: { codeType: activeTab, value: newVal }
-      })
-    });
+    try {
+      await fetch(`/api/room/${roomId}/action`, {
+        method: "POST",
+        body: JSON.stringify({
+          type: "editor-change",
+          payload: { codeType: activeTab, value: newVal }
+        })
+      });
+    } catch (err) {
+      console.error("Action error:", err);
+    }
   };
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950 p-4">
+        <div className="w-full max-w-md bg-gray-900 border border-red-900/30 rounded-2xl p-6 shadow-2xl relative">
+          <div className="flex flex-col items-center mb-6">
+            <div className="w-12 h-12 rounded-xl bg-red-500/10 text-red-400 flex items-center justify-center mb-3 border border-red-500/20">
+              <AlertCircle size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-white text-center">Initialization Failed</h3>
+            <p className="text-sm text-gray-400 text-center mt-4 bg-gray-950 p-3 rounded-lg border border-gray-800 font-mono">
+              {error}
+            </p>
+            <p className="text-xs text-gray-500 text-center mt-4">
+              Please check your environment variables and connection.
+            </p>
+          </div>
+          <button 
+            onClick={() => window.location.reload()}
+            className="w-full py-3 bg-gray-800 text-white rounded-xl font-semibold hover:bg-gray-700 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (showPrompt) {
     return (

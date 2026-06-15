@@ -1,9 +1,20 @@
 import Pusher from "pusher";
 
-export const pusherServer = new Pusher({
-  appId: process.env.PUSHER_APP_ID!,
-  key: process.env.PUSHER_KEY!,
-  secret: process.env.PUSHER_SECRET!,
-  cluster: process.env.PUSHER_CLUSTER!,
-  useTLS: true,
-});
+const appId = process.env.PUSHER_APP_ID;
+const key = process.env.PUSHER_KEY;
+const secret = process.env.PUSHER_SECRET;
+const cluster = process.env.PUSHER_CLUSTER;
+
+if (!appId || !key || !secret || !cluster) {
+  console.error("Pusher environment variables are missing!");
+}
+
+export const pusherServer = (appId && key && secret && cluster) 
+  ? new Pusher({
+      appId,
+      key,
+      secret,
+      cluster,
+      useTLS: true,
+    })
+  : (null as any);
