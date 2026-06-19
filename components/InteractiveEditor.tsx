@@ -52,7 +52,7 @@ export default function InteractiveEditor() {
 
   const [simulatedCodeLine, setSimulatedCodeLine] = useState("");
   const [timeString, setTimeString] = useState("");
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Live ticking clock for preview
   useEffect(() => {
@@ -67,7 +67,9 @@ export default function InteractiveEditor() {
 
   // Scroll to bottom of chat
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
   }, [chatMessages, isTyping]);
 
   // Simulate remote typing changes over time
@@ -480,7 +482,7 @@ export default function InteractiveEditor() {
             </div>
 
             {/* Chat message logs */}
-            <div className="flex-1 p-3 overflow-y-auto space-y-4 custom-scroll select-text font-medium">
+            <div ref={chatContainerRef} className="flex-1 p-3 overflow-y-auto space-y-4 custom-scroll select-text font-medium">
               {chatMessages.map((msg) => (
                 <div key={msg.id} className="flex gap-2 text-xs">
                   <div className={`w-6 h-6 rounded-full ${msg.avatarColor} text-white flex items-center justify-center text-[9px] font-bold shrink-0 shadow-sm border border-white/50`}>
@@ -510,7 +512,6 @@ export default function InteractiveEditor() {
                   </span>
                 </div>
               )}
-              <div ref={chatEndRef} />
             </div>
 
             {/* Chat Message Input form */}

@@ -95,7 +95,7 @@ export default function PlaygroundEditor({
 
   return (
     <div className="flex flex-col h-full bg-transparent relative">
-      <div className="flex items-center justify-between border-b border-white/20 bg-white/20 backdrop-blur-md px-4 py-1.5 h-[45px]">
+      <div className="flex items-center justify-between border-b border-white/20 bg-white/40 backdrop-blur-md px-4 py-1.5 h-[45px]">
         <div className="flex gap-1">
           {["html", "css", "js"].map((tab) => (
             <button key={tab} onClick={() => setActiveTab(tab as "html" | "css" | "js")} className={`px-3 py-1.5 text-xs font-bold rounded-md border transition cursor-pointer ${activeTab === tab ? "bg-white/50 border-white/40 text-pink-600 shadow-sm" : "border-transparent text-slate-500 hover:text-pink-600 hover:bg-white/30"}`}>

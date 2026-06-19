@@ -103,3 +103,19 @@ body {
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background: var(--ring);
 }
+
+@keyframes natureFloat {
+  0% {
+    transform: translateY(-2%);
+  }
+  50% {
+    transform: translateY(-5%);
+  }
+  100% {
+    transform: translateY(-2%);
+  }
+}
+
+.animate-nature-float {
+  animation: natureFloat 12s ease-in-out infinite;
+}

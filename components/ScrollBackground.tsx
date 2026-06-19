@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import { usePathname } from "next/navigation";
 
 export default function ScrollBackground() {
   const [scrollY, setScrollY] = useState(0);
@@ -9,6 +10,7 @@ export default function ScrollBackground() {
   const [virtualScroll, setVirtualScroll] = useState(0);
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -44,44 +46,70 @@ export default function ScrollBackground() {
   if (!mounted) return null;
 
   const images = theme === "dark"
-    ? ["/dark_bg1.png", "/dark_bg2.png"]
+    ? ["/dark_bg1.png", "https://creator.nightcafe.studio/jobs/UMfJp2JtSK1zmB5C9bv5/UMfJp2JtSK1zmB5C9bv5--0--vuoem.jpg"]
     : [
       "https://thumbs.dreamstime.com/b/radha-krishna-vector-illustration-holding-hands-against-pink-purple-gradient-cloud-background-depicted-wears-422980769.jpg",
-      "https://i.pinimg.com/236x/4d/24/ba/4d24ba454a84f7a9e67677e2b020b9c4.jpg"
+      "https://paintwaint.in/cdn/shop/files/Background-2025-04-03T144407.378.png"
     ];
 
   const isVirtual = typeof document !== "undefined" && document.documentElement.scrollHeight <= window.innerHeight + 10;
   const currentScroll = isVirtual ? virtualScroll : scrollY;
   const currentMaxScroll = isVirtual ? 1000 : maxScroll;
 
+  const isAuthPage = pathname === "/login" || pathname === "/signup";
+
   const progress = Math.min(Math.max(currentScroll / currentMaxScroll, 0), 1);
-  const parallax1 = currentScroll * 0.4; // Image 1 moves up
-  const parallax2 = (currentScroll - currentMaxScroll) * 0.4; // Image 2 comes up from below
+  const parallax1 = currentScroll * 0.4;
+  const parallax2 = (currentScroll - currentMaxScroll) * 0.4;
 
   return (
-    <div className="fixed inset-0 z-[-2] pointer-events-none bg-[#fdf2f8]">
+    <>
+      {/* Global Overlay to handle transparency and blur independently per page */}
       <div
-        className="absolute top-0 left-0 w-full h-[200vh] transition-opacity duration-300"
-        style={{
-          backgroundImage: `url('${images[0]}')`,
-          backgroundSize: "100% auto",
-          backgroundPosition: "top center",
-          backgroundRepeat: "no-repeat",
-          opacity: 1 - progress,
-          transform: `translateY(-${parallax1}px)`
-        }}
-      />
-      <div
-        className="absolute top-0 left-0 w-full h-[200vh] transition-opacity duration-300"
-        style={{
-          backgroundImage: `url('${images[1]}')`,
-          backgroundSize: "100% auto",
-          backgroundPosition: "top center",
-          backgroundRepeat: "no-repeat",
-          opacity: progress,
-          transform: `translateY(-${parallax2}px)`
-        }}
-      />
-    </div>
+        className={`fixed inset-0 pointer-events-none transition-all duration-1000 z-[-1] ${pathname === '/'
+          ? 'bg-white/50 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[4px]'
+          : pathname === '/dashboard'
+            ? 'bg-white/50 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px]' // Dashboard specific blur
+            : 'bg-transparent'
+          }`}
+      ></div>
+
+      <div className="fixed inset-0 z-[-2] pointer-events-none bg-[#fdf2f8] dark:bg-slate-950">
+        {/* Parallax wrapper 1 */}
+        <div
+          className="absolute top-0 left-0 w-full h-[200vh]"
+          style={{ transform: isAuthPage ? undefined : `translateY(-${parallax1}px)` }}
+        >
+          <div
+            className="absolute top-0 left-0 w-full h-full transition-opacity duration-300 animate-nature-float"
+            style={{
+              backgroundImage: `url('${images[0]}')`,
+              backgroundSize: "100% auto",
+              backgroundPosition: "top center",
+              backgroundRepeat: "no-repeat",
+              opacity: isAuthPage ? 1 : 1 - progress,
+            }}
+          />
+        </div>
+        {!isAuthPage && (
+          <div
+            className="absolute top-0 left-0 w-full h-[200vh]"
+            style={{ transform: `translateY(-${parallax2}px)` }}
+          >
+            {/* Parallax wrapper 2 */}
+            <div
+              className="absolute top-0 left-0 w-full h-full transition-opacity duration-300 animate-nature-float"
+              style={{
+                backgroundImage: `url('${images[1]}')`,
+                backgroundSize: "100% auto",
+                backgroundPosition: "top center",
+                backgroundRepeat: "no-repeat",
+                opacity: progress,
+              }}
+            />
+          </div>
+        )}
+      </div>
+    </>
   );
 }

@@ -243,7 +243,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   return (
     <div className="flex flex-col h-screen bg-transparent text-foreground overflow-hidden font-sans relative z-10">
       <InteractiveWorkspaceBg />
-      <header className="flex items-center justify-between px-6 py-3 border-b border-white/20 bg-white/40 backdrop-blur-xl shrink-0 relative z-20">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-pink-200/60 bg-pink-100/70 backdrop-blur-2xl shadow-md shadow-pink-100/50 shrink-0 relative z-20">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-pink-50 border border-pink-100 flex items-center justify-center shadow-sm shadow-pink-500/10">
             <Sparkles className="w-4 h-4 text-pink-500" />

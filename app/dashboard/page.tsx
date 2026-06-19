@@ -17,7 +17,7 @@ interface Room {
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: authLoading, logout } = useAuth();
-  
+
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,12 +52,12 @@ export default function DashboardPage() {
   const handleCreateRoom = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newRoomName.trim()) return;
-    
+
     setCreating(true);
     // Generate random id
     const descriptors = ["maha", "mantra", "nova", "hyper", "cyber"];
     const roomId = `${descriptors[Math.floor(Math.random() * descriptors.length)]}-${Math.floor(Math.random() * 9000) + 1000}`;
-    
+
     try {
       const res = await fetch("/api/rooms", {
         method: "POST",
@@ -68,22 +68,22 @@ export default function DashboardPage() {
           visibility: newRoomVisibility
         })
       });
-      
+
       if (res.ok) {
         const newRoom = await res.json();
         setRooms([newRoom, ...rooms]);
         setIsModalOpen(false);
         setNewRoomName("");
         toast.success("Workspace created!");
-        
+
         // Ensure their username is saved locally for the room chat logic
         localStorage.setItem("devspace-username", user!.username);
-        
+
         // Ask if they want to go there now
         toast((t) => (
           <span className="flex items-center gap-3">
             Ready to code?
-            <button 
+            <button
               onClick={() => { toast.dismiss(t.id); router.push(`/room/${roomId}`); }}
               className="bg-pink-500 text-white px-3 py-1 rounded text-xs font-bold"
             >
@@ -91,7 +91,7 @@ export default function DashboardPage() {
             </button>
           </span>
         ), { duration: 5000 });
-        
+
       } else {
         toast.error("Failed to create room");
       }
@@ -121,7 +121,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-transparent pb-20">
       {/* Dashboard Header */}
-      <header className="bg-white/40 backdrop-blur-md border-b border-pink-100/50 sticky top-0 z-10 shadow-sm shadow-pink-500/5">
+      <header className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border-b border-white/50 dark:border-slate-600/60 sticky top-0 z-10 shadow-[0_4px_30px_rgba(0,0,0,0.05)] shadow-inner">
         <div className="container mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg bg-white/60 flex items-center justify-center">
@@ -129,7 +129,7 @@ export default function DashboardPage() {
             </div>
             <span className="font-bold text-lg text-slate-800">MantraCode</span>
           </Link>
-          
+
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
@@ -141,7 +141,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="w-px h-6 bg-pink-100"></div>
-            <button 
+            <button
               onClick={logout}
               className="text-slate-500 hover:text-pink-600 transition-colors p-2"
               title="Sign Out"
@@ -159,7 +159,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-extrabold text-slate-900 mb-1">Your Workspaces</h1>
             <p className="text-slate-500">Manage and join your real-time collaborative coding sessions.</p>
           </div>
-          
+
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-pink-500/20 transition-all hover:shadow-pink-500/40 hover:-translate-y-0.5 active:translate-y-0"
@@ -175,7 +175,7 @@ export default function DashboardPage() {
             <p className="text-slate-500 font-medium">Loading your spaces...</p>
           </div>
         ) : rooms.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 px-4 bg-white rounded-3xl border border-pink-100 border-dashed text-center shadow-sm">
+          <div className="flex flex-col items-center justify-center py-24 px-4 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl rounded-3xl border border-white/60 dark:border-slate-600/60 border-dashed text-center shadow-xl shadow-pink-500/5 shadow-inner">
             <div className="w-16 h-16 bg-pink-50 rounded-2xl flex items-center justify-center mb-6">
               <Zap className="w-8 h-8 text-pink-300" />
             </div>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-white border-2 border-pink-100 text-pink-600 font-bold px-6 py-2.5 rounded-xl hover:border-pink-200 hover:bg-pink-50 transition-all"
+              className="bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/60 dark:border-slate-600/60 text-slate-900 dark:text-slate-100 font-bold px-6 py-2.5 rounded-xl hover:bg-white/60 dark:hover:bg-slate-800/70 hover:text-pink-600 transition-all shadow-md drop-shadow-sm"
             >
               Create your first room
             </button>
@@ -195,14 +195,13 @@ export default function DashboardPage() {
             {rooms.map((room) => {
               const url = `${window.location.origin}/room/${room.roomId}`;
               return (
-                <div key={room.roomId} className="bg-white/60 backdrop-blur-md rounded-2xl border border-pink-100/50 p-6 shadow-sm hover:shadow-md hover:border-pink-200 transition-all group flex flex-col justify-between h-56 relative overflow-hidden">
+                <div key={room.roomId} className="bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-600/60 p-6 shadow-xl shadow-pink-500/5 hover:bg-white/30 dark:hover:bg-slate-900/40 hover:scale-[1.02] shadow-inner transition-all group flex flex-col justify-between h-56 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-400 to-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  
+
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${
-                        room.visibility === 'private' ? 'bg-slate-50 text-slate-600 border-slate-200' : 'bg-green-50 text-green-600 border-green-200'
-                      }`}>
+                      <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${room.visibility === 'private' ? 'bg-slate-50 text-slate-600 border-slate-200' : 'bg-green-50 text-green-600 border-green-200'
+                        }`}>
                         {room.visibility === 'private' ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
                         {room.visibility}
                       </div>
@@ -210,28 +209,28 @@ export default function DashboardPage() {
                         {new Date(room.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    
+
                     <h3 className="font-bold text-xl text-slate-800 mb-1 line-clamp-1">{room.name}</h3>
                     <p className="text-sm text-slate-500 font-mono flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                       ID: {room.roomId}
                     </p>
                   </div>
-                  
+
                   <div className="mt-6 flex items-center gap-2">
                     <button
                       onClick={() => {
                         localStorage.setItem("devspace-username", user!.username);
                         router.push(`/room/${room.roomId}`);
                       }}
-                      className="flex-1 bg-slate-50 hover:bg-pink-50 text-slate-700 hover:text-pink-600 border border-slate-200 hover:border-pink-200 py-2 rounded-xl text-sm font-bold transition-all text-center flex justify-center items-center gap-2"
+                      className="flex-1 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md hover:bg-white/60 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200 hover:text-pink-600 border border-white/60 dark:border-slate-600/60 py-2 rounded-xl text-sm font-bold transition-all text-center flex justify-center items-center gap-2 shadow-md drop-shadow-sm"
                     >
                       <Users className="w-4 h-4" />
                       Join
                     </button>
                     <button
                       onClick={() => copyToClipboard(url, room.roomId)}
-                      className="w-10 h-10 flex items-center justify-center bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 rounded-xl transition-all"
+                      className="w-10 h-10 flex items-center justify-center bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/60 dark:border-slate-600/60 hover:bg-white/60 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200 hover:text-pink-600 rounded-xl transition-all shadow-md"
                       title="Copy invite link"
                     >
                       {copiedId === room.roomId ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
@@ -246,11 +245,11 @@ export default function DashboardPage() {
 
       {/* Create Room Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-pink-100">
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">New Workspace</h2>
-            <p className="text-slate-500 text-sm mb-6">Create a sandbox room to collaborate in real-time.</p>
-            
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-[0_8px_30px_rgba(236,72,153,0.1)] dark:shadow-[0_8px_30px_rgba(168,85,247,0.1)] border border-white/60 dark:border-slate-700/50 shadow-inner">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 drop-shadow-md">New Workspace</h2>
+            <p className="text-slate-800 dark:text-slate-200 font-bold text-sm mb-6 drop-shadow-sm">Create a sandbox room to collaborate in real-time.</p>
+
             <form onSubmit={handleCreateRoom} className="space-y-5">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">Room Name</label>
@@ -260,27 +259,27 @@ export default function DashboardPage() {
                   value={newRoomName}
                   onChange={(e) => setNewRoomName(e.target.value)}
                   placeholder="e.g. Next.js Landing Page"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 dark:border-slate-600/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/60 dark:focus:bg-slate-800/60 transition-all text-slate-800 dark:text-white placeholder:text-slate-500 shadow-inner"
                 />
               </div>
-              
+
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">Visibility</label>
+                <label className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider ml-1 drop-shadow-sm">Visibility</label>
                 <select
                   value={newRoomVisibility}
                   onChange={(e) => setNewRoomVisibility(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 focus:bg-white transition-all"
+                  className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 dark:border-slate-600/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/60 dark:focus:bg-slate-800/60 transition-all text-slate-800 dark:text-white shadow-inner"
                 >
                   <option value="public">Public (Anyone with link can join)</option>
                   <option value="private">Private (Invite only)</option>
                 </select>
               </div>
-              
+
               <div className="pt-4 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3 bg-white text-slate-600 border border-slate-200 rounded-xl font-bold hover:bg-slate-50 transition-colors"
+                  className="flex-1 py-3 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/60 dark:border-slate-600/60 text-slate-900 dark:text-slate-100 font-bold rounded-xl hover:bg-white/60 dark:hover:bg-slate-800/70 transition-all shadow-md drop-shadow-sm"
                 >
                   Cancel
                 </button>

@@ -34,10 +34,26 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Suppress Next.js dev overlay for harmless Monaco Editor cancelation errors before Next.js initializes */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener("unhandledrejection", function(event) {
+                if (event.reason && typeof event.reason === "object") {
+                  if (event.reason.type === "cancelation" || event.reason.name === "Canceled" || event.reason.msg === "operation is manually canceled") {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                  }
+                }
+              }, true);
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col text-foreground relative">
         <ThemeProvider>
           <ScrollBackground />
-          <div className="fixed inset-0 bg-white/10 backdrop-blur-sm pointer-events-none z-[-1]" />
           <AuthProvider>
             <Toaster position="top-center" />
             <ThemeToggle />
