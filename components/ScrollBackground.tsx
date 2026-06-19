@@ -67,14 +67,14 @@ export default function ScrollBackground() {
       {/* Global Overlay to handle transparency and blur independently per page */}
       <div
         className={`fixed inset-0 pointer-events-none transition-all duration-1000 z-[-1] ${pathname === '/'
-          ? 'bg-white/50 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[4px]'
+          ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[4px]'
           : pathname === '/dashboard'
-            ? 'bg-white/50 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px]' // Dashboard specific blur
+            ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px]' // Dashboard specific blur
             : 'bg-transparent'
           }`}
       ></div>
 
-      <div className="fixed inset-0 z-[-2] pointer-events-none bg-[#fdf2f8] dark:bg-slate-950">
+      <div className="fixed inset-0 z-[-2] pointer-events-none bg-[#f9a8d4] dark:bg-slate-950">
         {/* Parallax wrapper 1 */}
         <div
           className="absolute top-0 left-0 w-full h-[200vh]"

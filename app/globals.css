@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fffafa; /* Very light pink/white */
+  --background: #fbcfe8; /* Pink-200 (Very noticeable pink tint) */
   --foreground: #2d3748; /* Dark text for readability */
   --card: #ffffff;
   --card-foreground: #2d3748;

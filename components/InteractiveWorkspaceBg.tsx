@@ -103,8 +103,8 @@ export default function InteractiveWorkspaceBg() {
         bgGradient.addColorStop(0, "#0f172a"); // Very dark slate
         bgGradient.addColorStop(1, "#1e293b"); // Slate
       } else {
-        bgGradient.addColorStop(0, "#fdf2f8"); // Light pink
-        bgGradient.addColorStop(1, "#fff0f5"); // Lavender blush
+        bgGradient.addColorStop(0, "#f9a8d4"); // Pink-300
+        bgGradient.addColorStop(1, "#fbcfe8"); // Pink-200
       }
       ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, w, h);
@@ -120,7 +120,7 @@ export default function InteractiveWorkspaceBg() {
           blobGrad.addColorStop(0, i === 0 ? "rgba(168, 85, 247, 0.15)" : "rgba(59, 130, 246, 0.1)");
           blobGrad.addColorStop(1, "transparent");
         } else {
-          blobGrad.addColorStop(0, i === 0 ? "rgba(244, 114, 182, 0.2)" : "rgba(250, 204, 21, 0.15)");
+          blobGrad.addColorStop(0, i === 0 ? "rgba(219, 39, 119, 0.35)" : "rgba(250, 204, 21, 0.25)");
           blobGrad.addColorStop(1, "transparent");
         }
         ctx.fillStyle = blobGrad;
@@ -142,7 +142,7 @@ export default function InteractiveWorkspaceBg() {
         if (isDark) {
           ctx.strokeStyle = `rgba(147, 51, 234, ${mw.life * 0.85})`; // Deep saturated purple
         } else {
-          ctx.strokeStyle = `rgba(219, 39, 119, ${mw.life * 0.85})`; // Deep saturated pink
+          ctx.strokeStyle = `rgba(190, 24, 93, ${Math.min(1, mw.life * 1.2)})`; // Pink-700, much darker and more opaque
         }
         ctx.lineWidth = 3.5;
         ctx.stroke();
@@ -166,7 +166,8 @@ export default function InteractiveWorkspaceBg() {
           const colors = [`rgba(168, 85, 247, ${r.alpha})`, `rgba(59, 130, 246, ${r.alpha})`, `rgba(236, 72, 153, ${r.alpha})`];
           colorStr = colors[r.colorIndex % 3];
         } else {
-          const colors = [`rgba(236, 72, 153, ${r.alpha})`, `rgba(244, 114, 182, ${r.alpha})`, `rgba(251, 113, 133, ${r.alpha})`];
+          // Darker, highly saturated pinks/reds to contrast with the pink background
+          const colors = [`rgba(190, 24, 93, ${r.alpha})`, `rgba(157, 23, 77, ${r.alpha})`, `rgba(225, 29, 72, ${r.alpha})`];
           colorStr = colors[r.colorIndex % 3];
         }
         

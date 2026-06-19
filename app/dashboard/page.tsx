@@ -124,17 +124,19 @@ export default function DashboardPage() {
       <header className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border-b border-white/50 dark:border-slate-600/60 sticky top-0 z-10 shadow-[0_4px_30px_rgba(0,0,0,0.05)] shadow-inner">
         <div className="container mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-white/60 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-pink-500" />
+            <div className="w-8 h-8 rounded-lg bg-white/30 dark:bg-slate-800/80 border border-white/50 dark:border-slate-500/70 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-sm backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 text-pink-700 drop-shadow-sm" />
             </div>
-            <span className="font-bold text-lg text-slate-800">MantraCode</span>
+            <span className="font-black text-xl tracking-tight text-black dark:text-white group-hover:text-pink-700 transition-colors drop-shadow-md">
+              Mantra<span className="text-pink-600">Code</span>
+            </span>
           </Link>
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-slate-800">{user.username}</p>
-                <p className="text-[10px] text-slate-500">{user.email}</p>
+                <p className="text-base font-black text-slate-950 dark:text-white drop-shadow-sm">{user.username}</p>
+                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{user.email}</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-400 to-yellow-400 flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm">
                 {user.username.slice(0, 2)}
@@ -143,7 +145,7 @@ export default function DashboardPage() {
             <div className="w-px h-6 bg-pink-100"></div>
             <button
               onClick={logout}
-              className="text-slate-500 hover:text-pink-600 transition-colors p-2"
+              className="text-slate-700 dark:text-slate-300 hover:text-pink-700 dark:hover:text-pink-400 transition-colors p-2"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />
@@ -156,8 +158,8 @@ export default function DashboardPage() {
       <main className="container mx-auto px-4 md:px-8 py-10 max-w-6xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
           <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 mb-1">Your Workspaces</h1>
-            <p className="text-slate-500">Manage and join your real-time collaborative coding sessions.</p>
+            <h1 className="text-4xl font-black text-slate-950 dark:text-white mb-2 drop-shadow-md">Your Workspaces</h1>
+            <p className="text-lg font-bold text-slate-800 dark:text-slate-200 drop-shadow-sm">Manage and join your real-time collaborative coding sessions.</p>
           </div>
 
           <button
@@ -179,8 +181,8 @@ export default function DashboardPage() {
             <div className="w-16 h-16 bg-pink-50 rounded-2xl flex items-center justify-center mb-6">
               <Zap className="w-8 h-8 text-pink-300" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2">No workspaces yet</h2>
-            <p className="text-slate-500 max-w-sm mb-6">
+            <h2 className="text-2xl font-black text-slate-950 dark:text-white mb-2 drop-shadow-md tracking-tight">No workspaces yet</h2>
+            <p className="text-slate-800 dark:text-slate-200 max-w-sm mb-6 font-bold drop-shadow-sm">
               Create your first real-time collaborative room to start pair programming with your team.
             </p>
             <button
@@ -210,9 +212,9 @@ export default function DashboardPage() {
                       </span>
                     </div>
 
-                    <h3 className="font-bold text-xl text-slate-800 mb-1 line-clamp-1">{room.name}</h3>
-                    <p className="text-sm text-slate-500 font-mono flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <h3 className="font-black text-2xl text-slate-950 dark:text-white mb-1 line-clamp-1 tracking-tight drop-shadow-md">{room.name}</h3>
+                    <p className="text-sm text-slate-800 dark:text-slate-300 font-mono font-bold flex items-center gap-1.5 drop-shadow-sm">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 drop-shadow-md"></span>
                       ID: {room.roomId}
                     </p>
                   </div>
@@ -223,10 +225,10 @@ export default function DashboardPage() {
                         localStorage.setItem("devspace-username", user!.username);
                         router.push(`/room/${room.roomId}`);
                       }}
-                      className="flex-1 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md hover:bg-white/60 dark:hover:bg-slate-800/70 text-slate-800 dark:text-slate-200 hover:text-pink-600 border border-white/60 dark:border-slate-600/60 py-2 rounded-xl text-sm font-bold transition-all text-center flex justify-center items-center gap-2 shadow-md drop-shadow-sm"
+                      className="flex-1 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md hover:bg-white/60 dark:hover:bg-slate-800/70 text-slate-900 dark:text-slate-100 hover:text-pink-600 border border-white/60 dark:border-slate-600/60 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-all text-center flex justify-center items-center gap-2 shadow-md drop-shadow-sm"
                     >
-                      <Users className="w-4 h-4" />
-                      Join
+                      <Users className="w-4 h-4 drop-shadow-sm" />
+                      Join Space
                     </button>
                     <button
                       onClick={() => copyToClipboard(url, room.roomId)}
@@ -247,7 +249,7 @@ export default function DashboardPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-[0_8px_30px_rgba(236,72,153,0.1)] dark:shadow-[0_8px_30px_rgba(168,85,247,0.1)] border border-white/60 dark:border-slate-700/50 shadow-inner">
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2 drop-shadow-md">New Workspace</h2>
+            <h2 className="text-3xl font-black text-slate-950 dark:text-white mb-2 drop-shadow-md tracking-tight">New Workspace</h2>
             <p className="text-slate-800 dark:text-slate-200 font-bold text-sm mb-6 drop-shadow-sm">Create a sandbox room to collaborate in real-time.</p>
 
             <form onSubmit={handleCreateRoom} className="space-y-5">

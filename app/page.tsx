@@ -68,10 +68,10 @@ export default function Home() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
 
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-md backdrop-blur-md">
-              <Sparkles className="w-4 h-4 text-pink-600 drop-shadow-sm" />
+            <div className="w-8 h-8 rounded-lg bg-white/30 dark:bg-slate-800/80 border border-white/50 dark:border-slate-500/70 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-sm backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 text-pink-700 drop-shadow-sm" />
             </div>
-            <span className="font-black text-xl tracking-tight text-slate-950 dark:text-white group-hover:text-pink-700 transition-colors drop-shadow-md">
+            <span className="font-black text-xl tracking-tight text-black dark:text-white group-hover:text-pink-700 transition-colors drop-shadow-md">
               Mantra<span className="text-pink-600">Code</span>
             </span>
           </Link>
