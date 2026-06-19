@@ -129,20 +129,20 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
   }, [logs]);
 
   return (
-    <div className="flex flex-col h-full bg-gray-950">
+    <div className="flex flex-col h-full bg-[#fffafa]">
       {/* Live Preview Tabs/Actions */}
-      <div className="flex items-center justify-between border-b border-gray-900 bg-gray-950 px-4 py-1.5 h-[45px] shrink-0">
-        <div className="flex items-center gap-2 text-xs font-semibold text-gray-400">
-          <Eye size={14} className="text-blue-500" /> Live View
+      <div className="flex items-center justify-between border-b border-pink-100 bg-white px-4 py-1.5 h-[45px] shrink-0">
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <Eye size={14} className="text-pink-500" /> Live View
         </div>
         <div className="flex gap-2">
           {/* Toggle Developer Console */}
           <button
             onClick={() => setIsConsoleOpen(!isConsoleOpen)}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md border transition cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-md border transition cursor-pointer ${
               isConsoleOpen
-                ? "bg-indigo-950/20 border-indigo-500/30 text-indigo-400"
-                : "border-gray-850 bg-gray-900 text-gray-400 hover:text-white"
+                ? "bg-pink-50 border-pink-200 text-pink-600"
+                : "border-slate-200 bg-white text-slate-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50"
             }`}
           >
             <Terminal size={12} />
@@ -152,7 +152,7 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
           {/* Refresh Action */}
           <button
             onClick={updatePreview}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-md border border-gray-850 bg-gray-900 text-gray-400 hover:text-white transition cursor-pointer"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-md border border-slate-200 bg-white text-slate-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50 transition cursor-pointer"
           >
             <RotateCw size={12} /> Refresh
           </button>
@@ -166,10 +166,10 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
             srcDoc={srcDoc}
             title="DevSpace Live Sandbox Output"
             sandbox="allow-scripts"
-            className="w-full h-full border-none"
+            className="w-full h-full border-none bg-white"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-950 text-gray-500">
+          <div className="absolute inset-0 flex items-center justify-center bg-pink-50/50 text-slate-400 font-medium">
             Generating live environment...
           </div>
         )}
@@ -177,42 +177,42 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
 
       {/* Developer Console Drawer */}
       {isConsoleOpen && (
-        <div className="h-48 border-t border-gray-900 bg-gray-950 flex flex-col shrink-0">
-          <div className="flex items-center justify-between px-4 py-2 bg-gray-900/60 border-b border-gray-900/40">
-            <div className="flex items-center gap-2 text-xs font-bold font-mono text-gray-400 uppercase tracking-wider">
-              <Terminal size={14} className="text-green-500" /> Web Console
+        <div className="h-48 border-t border-pink-100 bg-white flex flex-col shrink-0 shadow-inner">
+          <div className="flex items-center justify-between px-4 py-2 bg-pink-50 border-b border-pink-100">
+            <div className="flex items-center gap-2 text-xs font-bold font-mono text-pink-600 uppercase tracking-wider">
+              <Terminal size={14} className="text-pink-500" /> Web Console
             </div>
             <button
               onClick={() => setLogs([])}
               disabled={logs.length === 0}
-              className="text-gray-500 hover:text-white disabled:opacity-40 transition cursor-pointer"
+              className="text-slate-400 hover:text-pink-600 disabled:opacity-40 transition cursor-pointer"
               title="Clear Logs"
             >
               <Trash2 size={14} />
             </button>
           </div>
-          <div className="flex-1 p-3 font-mono text-xs overflow-y-auto space-y-2 select-text selection:bg-indigo-950 select-auto">
+          <div className="flex-1 p-3 font-mono text-xs overflow-y-auto space-y-2 select-text selection:bg-pink-100 select-auto custom-scroll bg-[#fffafa]">
             {logs.length === 0 ? (
-              <div className="text-gray-600 text-center py-8">
+              <div className="text-slate-400 text-center py-8 italic">
                 No logs. Click the interactive elements inside the preview window to trigger script execution.
               </div>
             ) : (
               logs.map((log, index) => (
                 <div
                   key={index}
-                  className={`flex items-start gap-2 border-b border-gray-900/30 pb-1.5 ${
+                  className={`flex items-start gap-2 border-b border-pink-50 pb-1.5 ${
                     log.level === "error"
-                      ? "text-red-400 bg-red-950/5 px-2 py-0.5 rounded"
+                      ? "text-red-500 bg-red-50 px-2 py-1 rounded-md"
                       : log.level === "warn"
-                      ? "text-amber-400 bg-amber-950/5 px-2 py-0.5 rounded"
-                      : "text-gray-300"
+                      ? "text-yellow-600 bg-yellow-50 px-2 py-1 rounded-md"
+                      : "text-slate-700"
                   }`}
                 >
-                  <span className="text-[10px] text-gray-650 select-none">{log.timestamp}</span>
+                  <span className="text-[10px] text-slate-400 select-none">[{log.timestamp}]</span>
                   <span className="font-semibold select-none">
                     {log.level === "error" ? "✖" : log.level === "warn" ? "⚠" : "›"}
                   </span>
-                  <pre className="flex-1 whitespace-pre-wrap font-sans">{log.text}</pre>
+                  <pre className="flex-1 whitespace-pre-wrap font-sans font-medium">{log.text}</pre>
                 </div>
               ))
             )}

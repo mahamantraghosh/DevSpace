@@ -8,7 +8,7 @@ export async function POST(
 ) {
   const { roomId } = await params;
   const body = await req.json();
-  const { type, payload } = body;
+  const { type, payload, socket_id } = body;
   const channelName = `presence-${roomId}`;
 
   if (!redis || !pusherServer) {
@@ -37,15 +37,15 @@ export async function POST(
         if (room.messages.length > 100) room.messages.shift();
         await redis.set(`room:${roomId}`, JSON.stringify(room));
         
-        await pusherServer.trigger(channelName, "receive-message", message);
+        await pusherServer.trigger(channelName, "receive-message", message, socket_id ? { socket_id } : undefined);
         return NextResponse.json(message);
       }
     }
 
     if (type === "editor-change") {
-      await pusherServer.trigger(channelName, "editor-update", payload);
+      await pusherServer.trigger(channelName, "editor-update", payload, socket_id ? { socket_id } : undefined);
     } else if (type === "typing-status") {
-      await pusherServer.trigger(channelName, "typing-update", payload);
+      await pusherServer.trigger(channelName, "typing-update", payload, socket_id ? { socket_id } : undefined);
     }
 
     return NextResponse.json({ success: true });
