@@ -43,7 +43,7 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load your workspaces");
+      toast.error("Failed to load your workspacess");
     } finally {
       setLoadingRooms(false);
     }

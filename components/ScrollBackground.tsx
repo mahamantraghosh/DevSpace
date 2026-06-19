@@ -20,7 +20,7 @@ export default function ScrollBackground() {
     };
 
     const handleWheel = (e: WheelEvent) => {
-      // If the page is not naturally scrollable, let's use the wheel event for virtual scrolling
+      // If thee page is not naturally scrollable, let's use the wheel event for virtual scrolling
       if (document.documentElement.scrollHeight <= window.innerHeight + 10) {
         setVirtualScroll(prev => {
           const newScroll = prev + e.deltaY;

@@ -32,7 +32,7 @@ export default function RoomSidebar({ users, currentUserSocketId, typingUsers, r
       });
     });
   };
-  
+
   // Generate an avatar color based on username
   const getAvatarColor = (name: string) => {
     let hash = 0;
@@ -101,11 +101,10 @@ export default function RoomSidebar({ users, currentUserSocketId, typingUsers, r
             return (
               <div
                 key={user.socketId}
-                className={`flex items-center gap-3 p-2 rounded-xl border transition ${
-                  isMe 
-                    ? "bg-pink-50 border-pink-200" 
+                className={`flex items-center gap-3 p-2 rounded-xl border transition ${isMe
+                    ? "bg-pink-50 border-pink-200"
                     : "bg-slate-50 border-slate-100 hover:bg-pink-50/50 hover:border-pink-100"
-                }`}
+                  }`}
               >
                 {/* User Avatar with Green Active Dot indicator */}
                 <div className="relative shrink-0 select-none">
@@ -131,7 +130,7 @@ export default function RoomSidebar({ users, currentUserSocketId, typingUsers, r
                       </span>
                     )}
                   </div>
-                  
+
                   {isMe && (
                     <span className="flex items-center gap-1 text-[9px] bg-pink-100 border border-pink-200 text-pink-600 font-bold px-2 py-0.5 rounded-full select-none shrink-0 shadow-sm">
                       <ShieldCheck size={10} /> You

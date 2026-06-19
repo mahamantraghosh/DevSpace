@@ -23,12 +23,11 @@ export default function TerminalConsole({ logs }: { logs: LogMessage[] }) {
           logs.map((log, idx) => (
             <div key={idx} className="flex gap-2 border-b border-slate-100/50 pb-1 mb-1 last:border-0">
               <span className="text-slate-400 shrink-0 select-none">[{log.time}]</span>
-              <span className={`break-all ${
-                log.type === "error" ? "text-red-500" :
-                log.type === "system" ? "text-pink-500 font-semibold" :
-                log.type === "info" ? "text-blue-500" :
-                "text-slate-700"
-              }`}>
+              <span className={`break-all ${log.type === "error" ? "text-red-500" :
+                  log.type === "system" ? "text-pink-500 font-semibold" :
+                    log.type === "info" ? "text-blue-500" :
+                      "text-slate-700"
+                }`}>
                 {log.content}
               </span>
             </div>

@@ -24,7 +24,7 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
   // Generate Iframe Content with injected Console overrides and Tailwind CSS
   const updatePreview = () => {
     const timestamp = new Date().toLocaleTimeString();
-    
+
     // Reset logs on fresh recompilation
     setLogs([]);
 
@@ -139,11 +139,10 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
           {/* Toggle Developer Console */}
           <button
             onClick={() => setIsConsoleOpen(!isConsoleOpen)}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-md border transition cursor-pointer ${
-              isConsoleOpen
-                ? "bg-pink-50 border-pink-200 text-pink-600"
-                : "border-slate-200 bg-white text-slate-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50"
-            }`}
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-md border transition cursor-pointer ${isConsoleOpen
+              ? "bg-pink-50 border-pink-200 text-pink-600"
+              : "border-slate-200 bg-white text-slate-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50"
+              }`}
           >
             <Terminal size={12} />
             Console {logs.length > 0 && `(${logs.length})`}
@@ -200,13 +199,12 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
               logs.map((log, index) => (
                 <div
                   key={index}
-                  className={`flex items-start gap-2 border-b border-pink-50 pb-1.5 ${
-                    log.level === "error"
-                      ? "text-red-500 bg-red-50 px-2 py-1 rounded-md"
-                      : log.level === "warn"
+                  className={`flex items-start gap-2 border-b border-pink-50 pb-1.5 ${log.level === "error"
+                    ? "text-red-500 bg-red-50 px-2 py-1 rounded-md"
+                    : log.level === "warn"
                       ? "text-yellow-600 bg-yellow-50 px-2 py-1 rounded-md"
                       : "text-slate-700"
-                  }`}
+                    }`}
                 >
                   <span className="text-[10px] text-slate-400 select-none">[{log.timestamp}]</span>
                   <span className="font-semibold select-none">

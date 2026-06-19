@@ -57,7 +57,7 @@ export default function CursorTrail() {
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
-        
+
         // Add glow
         ctx.shadowBlur = 10;
         ctx.shadowColor = this.color;
@@ -71,7 +71,7 @@ export default function CursorTrail() {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
       mouse.isMoving = true;
-      
+
       clearTimeout(moveTimeout);
       moveTimeout = setTimeout(() => {
         mouse.isMoving = false;
@@ -104,13 +104,13 @@ export default function CursorTrail() {
       for (let i = 0; i < particles.length; i++) {
         particles[i].update();
         particles[i].draw();
-        
+
         if (particles[i].life <= 0 || particles[i].size <= 0.2) {
           particles.splice(i, 1);
           i--;
         }
       }
-      
+
       requestAnimationFrame(animate);
     };
 

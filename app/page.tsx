@@ -40,7 +40,7 @@ export default function Home() {
         "Connect with Mahamantra on GitHub and LinkedIn!",
         "Real-time sandboxed compilation active globally",
         "Mahamantra just pushed a new feature update, try it",
-        "Redis-powered session persistence is running smoothly",
+        "Redis-powered session persistence is running smoothly ",
         "DevSpace is now MantraCode!!"
       ];
       setActivities(prev => {

@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  Terminal as TerminalIcon, 
-  Users, 
-  MessageSquare, 
-  Play, 
-  Send, 
-  FileCode, 
-  FolderTree, 
+import {
+  Terminal as TerminalIcon,
+  Users,
+  MessageSquare,
+  Play,
+  Send,
+  FileCode,
+  FolderTree,
   Settings,
   ChevronRight,
   Info
@@ -43,7 +43,7 @@ export default function InteractiveEditor() {
       avatarColor: "bg-yellow-500",
     },
   ]);
-  
+
   const [terminalLines, setTerminalLines] = useState<string[]>([
     "[MantraCode Server] Initializing web sandbox...",
     "[MantraCode Server] Hot module reloading active.",
@@ -76,10 +76,10 @@ export default function InteractiveEditor() {
   useEffect(() => {
     let index = 0;
     const codeToAdd = "  console.log('Clock rendered successfully!');";
-    
+
     const typingTimeout = setTimeout(() => {
       setIsTyping(true);
-      
+
       const charInterval = setInterval(() => {
         if (index < codeToAdd.length) {
           setSimulatedCodeLine((prev) => prev + codeToAdd[index]);
@@ -238,33 +238,30 @@ export default function InteractiveEditor() {
         <button
           type="button"
           onClick={() => setMobileTab("code")}
-          className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${
-            mobileTab === "code" 
-              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40" 
+          className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${mobileTab === "code"
+              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
               : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
-          }`}
+            }`}
         >
           Code
         </button>
         <button
           type="button"
           onClick={() => setMobileTab("preview")}
-          className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${
-            mobileTab === "preview" 
-              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40" 
+          className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${mobileTab === "preview"
+              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
               : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
-          }`}
+            }`}
         >
           Preview
         </button>
         <button
           type="button"
           onClick={() => setMobileTab("chat")}
-          className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${
-            mobileTab === "chat" 
-              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40" 
+          className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${mobileTab === "chat"
+              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
               : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
-          }`}
+            }`}
         >
           Chat
         </button>
@@ -297,27 +294,24 @@ export default function InteractiveEditor() {
           <div className="flex flex-col gap-1 text-xs">
             <button
               onClick={() => setActiveTab("html")}
-              className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer ${
-                activeTab === "html" ? "bg-white/50 text-pink-700 font-bold shadow-sm border border-white/60" : "text-slate-700 font-medium hover:bg-white/40"
-              }`}
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer ${activeTab === "html" ? "bg-white/50 text-pink-700 font-bold shadow-sm border border-white/60" : "text-slate-700 font-medium hover:bg-white/40"
+                }`}
             >
               <FileCode className="w-3.5 h-3.5 text-orange-500" />
               <span className="font-mono">index.html</span>
             </button>
             <button
               onClick={() => setActiveTab("css")}
-              className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer ${
-                activeTab === "css" ? "bg-white/50 text-pink-700 font-bold shadow-sm border border-white/60" : "text-slate-700 font-medium hover:bg-white/40"
-              }`}
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer ${activeTab === "css" ? "bg-white/50 text-pink-700 font-bold shadow-sm border border-white/60" : "text-slate-700 font-medium hover:bg-white/40"
+                }`}
             >
               <FileCode className="w-3.5 h-3.5 text-blue-500" />
               <span className="font-mono">styles.css</span>
             </button>
             <button
               onClick={() => setActiveTab("js")}
-              className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer ${
-                activeTab === "js" ? "bg-white/50 text-pink-700 font-bold shadow-sm border border-white/60" : "text-slate-700 font-medium hover:bg-white/40"
-              }`}
+              className={`flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition-colors cursor-pointer ${activeTab === "js" ? "bg-white/50 text-pink-700 font-bold shadow-sm border border-white/60" : "text-slate-700 font-medium hover:bg-white/40"
+                }`}
             >
               <FileCode className="w-3.5 h-3.5 text-yellow-600" />
               <span className="font-mono">app.js</span>
@@ -331,25 +325,22 @@ export default function InteractiveEditor() {
           <div className="flex border-b border-white/30 bg-white/20 md:hidden">
             <button
               onClick={() => setActiveTab("html")}
-              className={`flex-1 py-2 text-center text-xs font-mono border-b-2 font-bold transition-all ${
-                activeTab === "html" ? "border-pink-500 text-pink-600 bg-white/40" : "border-transparent text-slate-600"
-              }`}
+              className={`flex-1 py-2 text-center text-xs font-mono border-b-2 font-bold transition-all ${activeTab === "html" ? "border-pink-500 text-pink-600 bg-white/40" : "border-transparent text-slate-600"
+                }`}
             >
               index.html
             </button>
             <button
               onClick={() => setActiveTab("css")}
-              className={`flex-1 py-2 text-center text-xs font-mono border-b-2 font-bold transition-all ${
-                activeTab === "css" ? "border-pink-500 text-pink-600 bg-white/40" : "border-transparent text-slate-600"
-              }`}
+              className={`flex-1 py-2 text-center text-xs font-mono border-b-2 font-bold transition-all ${activeTab === "css" ? "border-pink-500 text-pink-600 bg-white/40" : "border-transparent text-slate-600"
+                }`}
             >
               styles.css
             </button>
             <button
               onClick={() => setActiveTab("js")}
-              className={`flex-1 py-2 text-center text-xs font-mono border-b-2 font-bold transition-all ${
-                activeTab === "js" ? "border-pink-500 text-pink-600 bg-white/40" : "border-transparent text-slate-600"
-              }`}
+              className={`flex-1 py-2 text-center text-xs font-mono border-b-2 font-bold transition-all ${activeTab === "js" ? "border-pink-500 text-pink-600 bg-white/40" : "border-transparent text-slate-600"
+                }`}
             >
               app.js
             </button>
@@ -433,13 +424,11 @@ export default function InteractiveEditor() {
         </div>
 
         {/* Right Pane: Live Preview & Chat (Responsive side panel) */}
-        <div className={`w-full md:w-72 border-t md:border-t-0 md:border-l border-white/30 bg-white/20 backdrop-blur-md flex flex-col overflow-hidden ${
-          mobileTab === 'preview' || mobileTab === 'chat' ? 'flex flex-1' : 'hidden md:flex'
-        }`}>
-          {/* Top Half: Live Sandbox Preview */}
-          <div className={`flex-1 flex flex-col border-b border-white/30 min-h-[180px] bg-white/30 ${
-            mobileTab === 'preview' ? 'flex' : 'hidden md:flex'
+        <div className={`w-full md:w-72 border-t md:border-t-0 md:border-l border-white/30 bg-white/20 backdrop-blur-md flex flex-col overflow-hidden ${mobileTab === 'preview' || mobileTab === 'chat' ? 'flex flex-1' : 'hidden md:flex'
           }`}>
+          {/* Top Half: Live Sandbox Preview */}
+          <div className={`flex-1 flex flex-col border-b border-white/30 min-h-[180px] bg-white/30 ${mobileTab === 'preview' ? 'flex' : 'hidden md:flex'
+            }`}>
             <div className="flex items-center justify-between px-3 py-2 bg-white/50 border-b border-white/30 text-xs">
               <div className="flex items-center gap-1.5 font-mono">
                 <Play className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600/30" />
@@ -453,7 +442,7 @@ export default function InteractiveEditor() {
             <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden bg-white/10">
               {/* Radial gradient background behind clock */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-gradient-to-tr from-pink-300/40 to-yellow-300/40 rounded-full blur-2xl"></div>
-              
+
               {/* Actual Clock Widget Output */}
               <div className="relative group bg-white/40 border border-white/60 hover:border-pink-300/60 rounded-2xl p-4 text-center max-w-[200px] w-full shadow-xl shadow-pink-500/10 backdrop-blur-xl transition-all duration-300">
                 <h4 className="text-[10px] uppercase tracking-wider text-slate-600 font-mono font-black">MahaSpace Clock</h4>
@@ -470,9 +459,8 @@ export default function InteractiveEditor() {
           </div>
 
           {/* Bottom Half: Live Chat pane */}
-          <div className={`flex-1 flex flex-col h-[200px] md:h-auto bg-white/40 backdrop-blur-md ${
-            mobileTab === 'chat' ? 'flex' : 'hidden md:flex'
-          }`}>
+          <div className={`flex-1 flex flex-col h-[200px] md:h-auto bg-white/40 backdrop-blur-md ${mobileTab === 'chat' ? 'flex' : 'hidden md:flex'
+            }`}>
             <div className="flex items-center justify-between px-3 py-2 bg-white/50 border-b border-white/30 text-xs select-none">
               <div className="flex items-center gap-1.5 font-mono">
                 <MessageSquare className="w-3.5 h-3.5 text-pink-600" />
@@ -491,7 +479,7 @@ export default function InteractiveEditor() {
                   <div className="flex-1 space-y-0.5 min-w-0">
                     <div className="flex items-baseline justify-between">
                       <span className={`font-bold text-[11px] ${msg.sender === 'You' ? 'text-pink-700' : 'text-slate-800'}`}>
-                         {msg.sender}
+                        {msg.sender}
                       </span>
                       <span className="text-[8px] text-slate-500 font-mono font-bold">{msg.time}</span>
                     </div>

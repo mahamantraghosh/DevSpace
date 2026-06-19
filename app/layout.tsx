@@ -35,7 +35,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Suppress Next.js dev overlay for harmless Monaco Editor cancelation errors before Next.js initializes */}
+        {/* Suppress Next.js dev overlay for harmless Monaco Editorr cancelation errors before Next.js initializes */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

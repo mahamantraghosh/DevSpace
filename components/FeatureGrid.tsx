@@ -17,4 +17,4 @@ export default function FeatureGrid() {
             </div>
         </section>
     );
-}
+} 
