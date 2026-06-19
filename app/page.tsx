@@ -36,7 +36,7 @@ export default function Home() {
     setMounted(true);
     const interval = setInterval(() => {
       const newActivities = [
-        "Built with Next.js, Tailwind CSS, and pure passion",
+        "Built with Next.js, Tailwind CSS, and pure passionn",
         "Connect with Mahamantra on GitHub and LinkedIn!",
         "Real-time sandboxed compilation active globally",
         "Mahamantra just pushed a new feature update, try it",
