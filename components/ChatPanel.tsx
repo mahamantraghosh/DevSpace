@@ -135,7 +135,7 @@ export default function ChatPanel({ roomId, username, messages, typingUsers = {}
           ✨ Ask Mantra AI
         </button>
       </div>
-      <form onSubmit={handleSendMessage} className="px-3 pb-3 pt-1 flex gap-2 bg-transparent">
+      <form onSubmit={handleSendMessage} className="px-3 pb-24 pt-1 flex gap-2 bg-transparent">
         <input
           type="text" value={inputText} onChange={(e) => setInputText(e.target.value)}
           placeholder="Type a message..."
