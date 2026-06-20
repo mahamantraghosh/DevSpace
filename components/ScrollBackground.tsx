@@ -46,10 +46,10 @@ export default function ScrollBackground() {
   if (!mounted) return null;
 
   const images = theme === "dark"
-    ? ["dark_bg1.png", "krishna_dark_2.webp"]
+    ? ["dark_bg1.png", "https://creator.nightcafe.studio/jobs/UMfJp2JtSK1zmB5C9bv5/UMfJp2JtSK1zmB5C9bv5--0--vuoem.jpg"]
     : [
-      "krishna_bright_1.webp",
-      "krishna_bright_2.webp"
+      "https://thumbs.dreamstime.com/b/radha-krishna-vector-illustration-holding-hands-against-pink-purple-gradient-cloud-background-depicted-wears-422980769.jpg",
+      "https://paintwaint.in/cdn/shop/files/Background-2025-04-03T144407.378.png"
     ];
 
   const isVirtual = typeof document !== "undefined" && document.documentElement.scrollHeight <= window.innerHeight + 10;
