@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Loader2, Sparkles, LogOut, Copy, Check, Users, Lock, Unlock, Zap } from "lucide-react";
+import { Plus, Loader2, Sparkles, LogOut, Copy, Check, Users, Lock, Unlock, Zap, Settings, Trash } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 
@@ -12,6 +12,8 @@ interface Room {
   name: string;
   visibility: string;
   createdAt: string;
+  password?: string | null;
+  creatorId?: string;
 }
 
 export default function DashboardPage() {
@@ -21,10 +23,24 @@ export default function DashboardPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [joinRoomId, setJoinRoomId] = useState("");
   const [newRoomName, setNewRoomName] = useState("");
   const [newRoomVisibility, setNewRoomVisibility] = useState("public");
+  const [newRoomPassword, setNewRoomPassword] = useState("");
   const [creating, setCreating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editRoomName, setEditRoomName] = useState("");
+  const [editRoomVisibility, setEditRoomVisibility] = useState("public");
+  const [editRoomPassword, setEditRoomPassword] = useState("");
+  const [updating, setUpdating] = useState(false);
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [roomToDelete, setRoomToDelete] = useState<Room | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -65,7 +81,8 @@ export default function DashboardPage() {
         body: JSON.stringify({
           roomId,
           name: newRoomName,
-          visibility: newRoomVisibility
+          visibility: newRoomVisibility,
+          password: newRoomVisibility === "private" ? newRoomPassword : null
         })
       });
 
@@ -74,10 +91,11 @@ export default function DashboardPage() {
         setRooms([newRoom, ...rooms]);
         setIsModalOpen(false);
         setNewRoomName("");
+        setNewRoomPassword("");
         toast.success("Workspace created!");
 
         // Ensure their username is saved locally for the room chat logic
-        localStorage.setItem("devspace-username", user!.username);
+        localStorage.setItem("devspace-username", user!.username || "User");
 
         // Ask if they want to go there now
         toast((t) => (
@@ -110,6 +128,67 @@ export default function DashboardPage() {
     toast.success("Copied link!");
   };
 
+  const openEditModal = (room: Room) => {
+    setEditingRoom(room);
+    setEditRoomName(room.name);
+    setEditRoomVisibility(room.visibility);
+    setEditRoomPassword(room.password || "");
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateRoom = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingRoom || !editRoomName.trim()) return;
+    setUpdating(true);
+    try {
+      const res = await fetch(`/api/room/${editingRoom.roomId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editRoomName,
+          visibility: editRoomVisibility,
+          password: editRoomVisibility === "private" ? editRoomPassword : null
+        })
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setRooms(rooms.map(r => r.roomId === updated.roomId ? updated : r));
+        setIsEditModalOpen(false);
+        toast.success("Workspace updated!");
+      } else {
+        toast.error("Failed to update workspace");
+      }
+    } catch (err) {
+      toast.error("An error occurred");
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const confirmDelete = (room: Room) => {
+    setRoomToDelete(room);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteRoom = async () => {
+    if (!roomToDelete) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/room/${roomToDelete.roomId}`, { method: "DELETE" });
+      if (res.ok) {
+        setRooms(rooms.filter(r => r.roomId !== roomToDelete.roomId));
+        setIsDeleteModalOpen(false);
+        toast.success("Workspace deleted!");
+      } else {
+        toast.error("Failed to delete workspace");
+      }
+    } catch (err) {
+      toast.error("An error occurred");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (authLoading || !user) {
     return (
       <div className="h-screen flex items-center justify-center bg-background text-pink-500">
@@ -135,11 +214,11 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
-                <p className="text-base font-black text-slate-950 dark:text-white drop-shadow-sm">{user.username}</p>
+                <p className="text-base font-black text-slate-950 dark:text-white drop-shadow-sm">{user.username || "User"}</p>
                 <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{user.email}</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-400 to-yellow-400 flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm">
-                {user.username.slice(0, 2)}
+                {(user.username || user.email || "U").slice(0, 2)}
               </div>
             </div>
             <div className="w-px h-6 bg-pink-100"></div>
@@ -162,13 +241,22 @@ export default function DashboardPage() {
             <p className="text-lg font-bold text-slate-800 dark:text-slate-200 drop-shadow-sm">Manage and join your real-time collaborative coding sessions.</p>
           </div>
 
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-pink-500/20 transition-all hover:shadow-pink-500/40 hover:-translate-y-0.5 active:translate-y-0"
-          >
-            <Plus className="w-4 h-4" />
-            New Room
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsJoinModalOpen(true)}
+              className="flex items-center gap-2 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/60 text-slate-900 dark:text-slate-100 px-5 py-2.5 rounded-xl font-bold shadow-md transition-all hover:bg-white/60 hover:text-pink-600 hover:-translate-y-0.5"
+            >
+              <Users className="w-4 h-4" />
+              Join Room
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-md shadow-pink-500/20 transition-all hover:shadow-pink-500/40 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Plus className="w-4 h-4" />
+              New Room
+            </button>
+          </div>
         </div>
 
         {loadingRooms ? (
@@ -207,9 +295,21 @@ export default function DashboardPage() {
                         {room.visibility === 'private' ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
                         {room.visibility}
                       </div>
-                      <span className="text-xs text-slate-400 font-mono">
-                        {new Date(room.createdAt).toLocaleDateString()}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {room.creatorId === user.id && (
+                          <div className="flex items-center gap-1.5 mr-2">
+                            <button onClick={() => openEditModal(room)} className="p-1 text-slate-400 hover:text-pink-600 hover:bg-pink-50 rounded transition" title="Edit">
+                              <Settings className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => confirmDelete(room)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="Delete">
+                              <Trash className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                        <span className="text-xs text-slate-400 font-mono">
+                          {new Date(room.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
 
                     <h3 className="font-black text-2xl text-slate-950 dark:text-white mb-1 line-clamp-1 tracking-tight drop-shadow-md">{room.name}</h3>
@@ -222,7 +322,7 @@ export default function DashboardPage() {
                   <div className="mt-6 flex items-center gap-2">
                     <button
                       onClick={() => {
-                        localStorage.setItem("devspace-username", user!.username);
+                        localStorage.setItem("devspace-username", user!.username || "User");
                         router.push(`/room/${room.roomId}`);
                       }}
                       className="flex-1 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md hover:bg-white/60 dark:hover:bg-slate-800/70 text-slate-900 dark:text-slate-100 hover:text-pink-600 border border-white/60 dark:border-slate-600/60 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-all text-center flex justify-center items-center gap-2 shadow-md drop-shadow-sm"
@@ -277,6 +377,19 @@ export default function DashboardPage() {
                 </select>
               </div>
 
+              {newRoomVisibility === "private" && (
+                <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">Room Password (Optional)</label>
+                  <input
+                    type="password"
+                    value={newRoomPassword}
+                    onChange={(e) => setNewRoomPassword(e.target.value)}
+                    placeholder="Set a secure password... (Optional)"
+                    className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 dark:border-slate-600/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/60 dark:focus:bg-slate-800/60 transition-all text-slate-800 dark:text-white placeholder:text-slate-500 shadow-inner"
+                  />
+                </div>
+              )}
+
               <div className="pt-4 flex gap-3">
                 <button
                   type="button"
@@ -291,6 +404,150 @@ export default function DashboardPage() {
                   className="flex-1 py-3 bg-pink-500 text-white rounded-xl font-bold hover:bg-pink-600 shadow-md shadow-pink-500/20 transition-all disabled:opacity-70 flex justify-center items-center gap-2"
                 >
                   {creating ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Space"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Edit Room Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-[0_8px_30px_rgba(236,72,153,0.1)] dark:shadow-[0_8px_30px_rgba(168,85,247,0.1)] border border-white/60 dark:border-slate-700/50 shadow-inner">
+            <h2 className="text-3xl font-black text-slate-950 dark:text-white mb-2 drop-shadow-md tracking-tight">Edit Workspace</h2>
+            <p className="text-slate-800 dark:text-slate-200 font-bold text-sm mb-6 drop-shadow-sm">Update your workspace settings.</p>
+
+            <form onSubmit={handleUpdateRoom} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">Room Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editRoomName}
+                  onChange={(e) => setEditRoomName(e.target.value)}
+                  placeholder="e.g. Next.js Landing Page"
+                  className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 dark:border-slate-600/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/60 dark:focus:bg-slate-800/60 transition-all text-slate-800 dark:text-white placeholder:text-slate-500 shadow-inner"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider ml-1 drop-shadow-sm">Visibility</label>
+                <select
+                  value={editRoomVisibility}
+                  onChange={(e) => setEditRoomVisibility(e.target.value)}
+                  className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 dark:border-slate-600/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/60 dark:focus:bg-slate-800/60 transition-all text-slate-800 dark:text-white shadow-inner"
+                >
+                  <option value="public">Public (Anyone with link can join)</option>
+                  <option value="private">Private (Invite only)</option>
+                </select>
+              </div>
+
+              {editRoomVisibility === "private" && (
+                <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">Room Password (Optional)</label>
+                  <input
+                    type="password"
+                    value={editRoomPassword}
+                    onChange={(e) => setEditRoomPassword(e.target.value)}
+                    placeholder="Leave blank for no password"
+                    className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 dark:border-slate-600/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/60 dark:focus:bg-slate-800/60 transition-all text-slate-800 dark:text-white placeholder:text-slate-500 shadow-inner"
+                  />
+                </div>
+              )}
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="flex-1 py-3 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/60 dark:border-slate-600/60 text-slate-900 dark:text-slate-100 font-bold rounded-xl hover:bg-white/60 dark:hover:bg-slate-800/70 transition-all shadow-md drop-shadow-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="flex-1 py-3 bg-pink-500 text-white rounded-xl font-bold hover:bg-pink-600 shadow-md shadow-pink-500/20 transition-all disabled:opacity-70 flex justify-center items-center gap-2"
+                >
+                  {updating ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && roomToDelete && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-[0_8px_30px_rgba(239,68,68,0.15)] border border-white/60 shadow-inner">
+            <div className="w-14 h-14 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mb-6 border border-red-200 shadow-sm mx-auto">
+              <Trash size={28} />
+            </div>
+            <h2 className="text-2xl font-black text-slate-950 dark:text-white mb-2 text-center drop-shadow-md">Delete Workspace?</h2>
+            <p className="text-slate-800 dark:text-slate-200 font-bold text-sm mb-6 text-center drop-shadow-sm">
+              Are you sure you want to delete <span className="text-red-500">"{roomToDelete.name}"</span>? This action cannot be undone.
+            </p>
+
+            <div className="pt-2 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="flex-1 py-3 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/60 text-slate-900 dark:text-slate-100 font-bold rounded-xl hover:bg-white/60 transition-all shadow-md drop-shadow-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteRoom}
+                disabled={deleting}
+                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 shadow-md shadow-red-500/20 transition-all disabled:opacity-70 flex justify-center items-center gap-2"
+              >
+                {deleting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Yes, Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Join Room Modal */}
+      {isJoinModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full shadow-[0_8px_30px_rgba(236,72,153,0.1)] border border-white/60 shadow-inner">
+            <h2 className="text-3xl font-black text-slate-950 dark:text-white mb-2 drop-shadow-md tracking-tight">Join Workspace</h2>
+            <p className="text-slate-800 dark:text-slate-200 font-bold text-sm mb-6 drop-shadow-sm">Enter the workspace ID or code provided by your teammate.</p>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (joinRoomId.trim()) {
+                localStorage.setItem("devspace-username", user!.username || "User");
+                router.push(`/room/${joinRoomId.trim()}`);
+              }
+            }} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider ml-1">Workspace ID</label>
+                <input
+                  type="text"
+                  required
+                  value={joinRoomId}
+                  onChange={(e) => setJoinRoomId(e.target.value)}
+                  placeholder="e.g. cyber-4231"
+                  className="w-full px-4 py-3 bg-white/40 dark:bg-slate-800/40 backdrop-blur-sm border border-white/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white/60 transition-all text-slate-800 dark:text-white placeholder:text-slate-500 shadow-inner font-mono"
+                />
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsJoinModalOpen(false)}
+                  className="flex-1 py-3 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md border border-white/60 text-slate-900 dark:text-slate-100 font-bold rounded-xl hover:bg-white/60 transition-all shadow-md drop-shadow-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!joinRoomId.trim()}
+                  className="flex-1 py-3 bg-pink-500 text-white rounded-xl font-bold hover:bg-pink-600 shadow-md shadow-pink-500/20 transition-all disabled:opacity-70 flex justify-center items-center gap-2"
+                >
+                  Join Space
                 </button>
               </div>
             </form>

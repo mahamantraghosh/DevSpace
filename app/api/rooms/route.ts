@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { roomId, name, visibility = "public" } = await req.json();
+    const { roomId, name, visibility = "public", password = null } = await req.json();
     
     if (!roomId || !name) {
       return NextResponse.json({ error: "Missing roomId or name" }, { status: 400 });
@@ -52,6 +52,7 @@ export async function POST(req: Request) {
       roomId,
       name,
       visibility,
+      password: visibility === "private" ? password : null,
       creatorId: session.id,
       createdAt: new Date().toISOString()
     };

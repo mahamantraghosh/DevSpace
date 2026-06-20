@@ -14,9 +14,10 @@ interface ChatPanelProps {
   roomId: string;
   username: string;
   messages: Message[];
+  typingUsers?: Record<string, boolean>;
 }
 
-export default function ChatPanel({ roomId, username, messages }: ChatPanelProps) {
+export default function ChatPanel({ roomId, username, messages, typingUsers = {} }: ChatPanelProps) {
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -62,25 +63,70 @@ export default function ChatPanel({ roomId, username, messages }: ChatPanelProps
             <p className="text-xs font-medium">No messages yet.</p>
           </div>
         ) : (
-          messages.map((msg) => (
-            <div key={msg.id} className={`flex gap-3 ${msg.sender === username ? "flex-row-reverse" : "flex-row"}`}>
-              <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold ${getAvatarColor(msg.sender)}`}>
-                {msg.sender.slice(0, 2).toUpperCase()}
-              </div>
-              <div className={`flex flex-col max-w-[75%] ${msg.sender === username ? "items-end" : "items-start"}`}>
-                <div className="flex gap-2 items-center mb-1">
-                  <span className="text-[11px] font-bold text-slate-500">{msg.sender === username ? "You" : msg.sender}</span>
+          messages.map((msg) => {
+            const isAI = msg.sender === "Mantra AI";
+            const isMe = msg.sender === username;
+            
+            return (
+              <div key={msg.id} className={`flex gap-3 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold shrink-0 ${isAI ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30 ring-2 ring-indigo-200' : getAvatarColor(msg.sender)}`}>
+                  {isAI ? 'AI' : msg.sender.slice(0, 2).toUpperCase()}
                 </div>
-                <div className={`px-3 py-2 text-xs rounded-xl border ${msg.sender === username ? "bg-pink-50 border-pink-200 text-slate-800" : "bg-slate-50 border-slate-200 text-slate-800"}`}>
-                  {msg.text}
+                <div className={`flex flex-col max-w-[85%] ${isMe ? "items-end" : "items-start"}`}>
+                  <div className="flex gap-2 items-center mb-1">
+                    <span className={`text-[11px] font-bold ${isAI ? 'text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100' : 'text-slate-500'}`}>
+                      {isMe ? "You" : msg.sender}
+                    </span>
+                  </div>
+                  <div className={`px-3 py-2.5 text-[13px] rounded-xl border leading-relaxed break-words whitespace-pre-wrap ${
+                    isMe 
+                      ? "bg-pink-50 border-pink-200 text-slate-800" 
+                      : isAI 
+                        ? "bg-gradient-to-br from-indigo-50 to-white border-indigo-200 text-slate-800 shadow-sm" 
+                        : "bg-slate-50 border-slate-200 text-slate-800"
+                  }`}>
+                    {msg.text}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+        
+        {/* Typing Indicators */}
+        {Object.entries(typingUsers).map(([user, isTyping]) => {
+          if (!isTyping || user === username) return null;
+          const isAI = user === "Mantra AI";
+          return (
+            <div key={`typing-${user}`} className="flex gap-3 flex-row animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold ${isAI ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30' : getAvatarColor(user)}`}>
+                {isAI ? 'AI' : user.slice(0, 2).toUpperCase()}
+              </div>
+              <div className="flex flex-col items-start">
+                <div className="flex gap-2 items-center mb-1">
+                  <span className={`text-[11px] font-bold ${isAI ? 'text-indigo-600' : 'text-slate-500'}`}>{user}</span>
+                </div>
+                <div className="px-3 py-3 text-xs rounded-xl border bg-slate-50 border-slate-200 flex items-center gap-1.5 h-9">
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+                  <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
                 </div>
               </div>
             </div>
-          ))
-        )}
+          );
+        })}
+        
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSendMessage} className="p-3 border-t border-white/20 flex gap-2 bg-transparent">
+      <div className="px-3 pt-2 pb-1 border-t border-white/20">
+        <button 
+          onClick={() => setInputText((prev) => (prev ? prev + " @MantraAI " : "@MantraAI "))}
+          className="text-[10px] font-bold bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-full hover:bg-indigo-200 transition-colors border border-indigo-200"
+        >
+          ✨ Ask Mantra AI
+        </button>
+      </div>
+      <form onSubmit={handleSendMessage} className="px-3 pb-3 pt-1 flex gap-2 bg-transparent">
         <input
           type="text" value={inputText} onChange={(e) => setInputText(e.target.value)}
           placeholder="Type a message..."

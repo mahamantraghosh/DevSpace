@@ -36,7 +36,11 @@ export async function getSession(): Promise<UserSession | null> {
   if (!sessionData) return null;
   
   try {
-    return JSON.parse(sessionData) as UserSession;
+    if (typeof sessionData === 'string') {
+      return JSON.parse(sessionData) as UserSession;
+    } else {
+      return sessionData as any as UserSession;
+    }
   } catch {
     return null;
   }

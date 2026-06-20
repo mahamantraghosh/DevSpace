@@ -4,9 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { Play, RotateCw, Terminal, Trash2, Eye } from "lucide-react";
 
 interface LivePreviewProps {
-  html: string;
-  css: string;
-  js: string;
+  files?: Record<string, string>;
 }
 
 interface LogEntry {
@@ -15,7 +13,7 @@ interface LogEntry {
   timestamp: string;
 }
 
-export default function LivePreview({ html, css, js }: LivePreviewProps) {
+export default function LivePreview({ files = {} }: LivePreviewProps) {
   const [srcDoc, setSrcDoc] = useState("");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
@@ -28,6 +26,13 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
     // Reset logs on fresh recompilation
     setLogs([]);
 
+    const htmlContent = files["/index.html"] || "";
+    const cssContent = files["/styles.css"] || "";
+    const jsContent = Object.keys(files)
+      .filter(f => f.endsWith('.js') && f !== '/index.html')
+      .map(f => files[f])
+      .join('\n\n'); // Concatenate all JS files for now
+
     const combinedDoc = `
       <!DOCTYPE html>
       <html lang="en">
@@ -37,7 +42,7 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
         <script src="https://cdn.tailwindcss.com"></script>
         <style>
           /* Custom styles from editor */
-          ${css}
+          ${cssContent}
         </style>
         <script>
           // Override Console Logger inside Iframe
@@ -73,19 +78,19 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
             };
 
             // Global error catcher
-            window.addEventListener('error', function(event) {
-              sendLog('error', [event.message]);
-            });
+            window.onerror = function(message, source, lineno, colno, error) {
+              sendLog('error', [message]);
+              return false;
+            };
           })();
         </script>
       </head>
       <body>
-        ${html}
+        ${htmlContent}
         <script>
-          // Evaluate JavaScript safely
           try {
-            ${js}
-          } catch(err) {
+            ${jsContent}
+          } catch (err) {
             console.error(err.message);
           }
         </script>
@@ -97,12 +102,12 @@ export default function LivePreview({ html, css, js }: LivePreviewProps) {
 
   // Debounced live preview rendering (triggers 600ms after user stops typing)
   useEffect(() => {
+    // Initial compile delay to prevent flashing
     const timer = setTimeout(() => {
       updatePreview();
-    }, 600);
-
+    }, 800);
     return () => clearTimeout(timer);
-  }, [html, css, js]);
+  }, [files]);
 
   // Listen to messages from the Iframe sandbox console
   useEffect(() => {

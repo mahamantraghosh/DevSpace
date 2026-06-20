@@ -7,22 +7,14 @@ import { useTheme } from "next-themes";
 
 interface PlaygroundEditorProps {
   code: string;
-  codeType: "html" | "css" | "js";
+  codeType: string;
   onChange: (val: string) => void;
-  activeTab: "html" | "css" | "js";
-  setActiveTab: (tab: "html" | "css" | "js") => void;
-  roomId: string;
-  username: string;
 }
 
 export default function PlaygroundEditor({
   code,
   codeType,
-  onChange,
-  activeTab,
-  setActiveTab,
-  roomId,
-  username
+  onChange
 }: PlaygroundEditorProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null);
@@ -74,50 +66,14 @@ export default function PlaygroundEditor({
     }
   }, [theme, monacoInstance]);
 
-  const handleEditorChange = (val: string | undefined) => {
-    const newValue = val || "";
-    
-    // Update parent state immediately for local UI (preview)
-    onChange(newValue);
-
-    // Typing status via API
-    if (roomId && username) {
-      // We don't debounce typing status start, but we do debounce stop
-      fetch(`/api/room/${roomId}/action`, {
-        method: "POST",
-        body: JSON.stringify({
-          type: "typing-status",
-          payload: { username, isTyping: true }
-        })
-      });
-
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = setTimeout(async () => {
-        await fetch(`/api/room/${roomId}/action`, {
-          method: "POST",
-          body: JSON.stringify({
-            type: "typing-status",
-            payload: { username, isTyping: false }
-          })
-        });
-      }, 2000);
+  const handleEditorChange = (value: string | undefined) => {
+    if (value !== undefined) {
+      onChange(value);
     }
   };
 
   return (
     <div className="flex flex-col h-full bg-transparent relative">
-      <div className="flex items-center justify-between border-b border-white/20 bg-white/40 backdrop-blur-md px-4 py-1.5 h-[45px]">
-        <div className="flex gap-1">
-          {["html", "css", "js"].map((tab) => (
-            <button key={tab} onClick={() => setActiveTab(tab as "html" | "css" | "js")} className={`px-3 py-1.5 text-xs font-bold rounded-md border transition cursor-pointer ${activeTab === tab ? "bg-white/50 border-white/40 text-pink-600 shadow-sm" : "border-transparent text-slate-500 hover:text-pink-600 hover:bg-white/30"}`}>
-              {tab === "html" && <FileCode size={14} className="inline mr-1" />}
-              {tab === "css" && <Braces size={14} className="inline mr-1" />}
-              {tab === "js" && <Terminal size={14} className="inline mr-1" />}
-              index.{tab}
-            </button>
-          ))}
-        </div>
-      </div>
       <div className="flex-1 w-full relative">
         <Editor
           height="100%" language={getLanguage()} value={code}

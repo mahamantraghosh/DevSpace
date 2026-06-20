@@ -9,6 +9,7 @@ import PlaygroundEditor from "@/components/PlaygroundEditor";
 import LivePreview from "@/components/LivePreview";
 import ChatPanel from "@/components/ChatPanel";
 import RoomSidebar from "@/components/RoomSidebar";
+import FileExplorer from "@/components/FileExplorer";
 import InteractiveWorkspaceBg from "@/components/InteractiveWorkspaceBg";
 import confetti from "canvas-confetti";
 import { useAuth } from "@/context/AuthContext";
@@ -51,11 +52,18 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const [users, setUsers] = useState<User[]>([]);
   const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
   const [messages, setMessages] = useState<Message[]>([]);
-  const [code, setCode] = useState<CodeState>({ html: "", css: "", js: "" });
-  const [activeTab, setActiveTab] = useState<"html" | "css" | "js">("html");
+  const [files, setFiles] = useState<Record<string, string>>({
+    "/index.html": '<!-- Welcome to MantraCode -->\n<div class="hello">Hello World</div>',
+    "/styles.css": '.hello {\n  color: #ec4899;\n  font-weight: bold;\n}',
+    "/script.js": 'console.log("MantraCode is running!");'
+  });
+  const [activeFile, setActiveFile] = useState<string>("/index.html");
   const [copied, setCopied] = useState<boolean>(false);
-  const [activeTabSidebar, setActiveTabSidebar] = useState<"users" | "chat">("users");
+  const [activeTabSidebar, setActiveTabSidebar] = useState<"files" | "users" | "chat">("files");
   const [error, setError] = useState<string | null>(null);
+  const [passwordRequired, setPasswordRequired] = useState(false);
+  const [roomPassword, setRoomPassword] = useState("");
+  const [verifyingPassword, setVerifyingPassword] = useState(false);
 
   const [currentUserSocketId, setCurrentUserSocketId] = useState<string>("");
 
@@ -73,25 +81,55 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
 
     const fetchInitialData = async () => {
       try {
-        const res = await fetch(`/api/room/${roomId}/init`);
+        setVerifyingPassword(true);
+        const res = await fetch(`/api/room/${roomId}/init`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: roomPassword })
+        });
+        
+        if (res.status === 401) {
+          const data = await res.json();
+          if (data.requiresPassword) {
+            setPasswordRequired(true);
+            setVerifyingPassword(false);
+            return false; // Stop pusher init
+          }
+        }
+        
         if (!res.ok) {
           throw new Error(`Failed to fetch room data: ${res.statusText}`);
         }
+        
         const data = await res.json();
         if (data.error) throw new Error(data.error);
         
-        setCode(data.code);
-        setMessages(data.messages);
+        let initialFiles = data.code;
+        if (initialFiles && initialFiles.html !== undefined && !initialFiles['/index.html']) {
+          initialFiles = {
+            "/index.html": initialFiles.html || "",
+            "/styles.css": initialFiles.css || "",
+            "/script.js": initialFiles.js || ""
+          };
+        }
+        setFiles(initialFiles || { "/index.html": "" });
+        setMessages(data.messages || []);
         setConnected(true);
+        setPasswordRequired(false);
+        setVerifyingPassword(false);
+        return true; // Continue to pusher init
       } catch (err: any) {
         console.error("Fetch error:", err);
         setError(err.message || "Failed to initialize room data.");
+        setVerifyingPassword(false);
+        return false;
       }
     };
 
-    fetchInitialData();
+    fetchInitialData().then((shouldContinue) => {
+      if (!shouldContinue) return;
 
-    // Setup Pusher with Presence Channel
+      // Setup Pusher with Presence Channel
     try {
       const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
       const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
@@ -140,11 +178,23 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         setUsers((prev) => prev.filter((u) => u.socketId !== member.id));
       });
 
-      channel.bind("editor-update", (data: { codeType: "html" | "css" | "js"; value: string }) => {
-        setCode((prev) => ({
+      channel.bind("editor-update", (data: { filename: string; value: string }) => {
+        setFiles((prev) => ({
           ...prev,
-          [data.codeType]: data.value,
+          [data.filename]: data.value,
         }));
+      });
+
+      channel.bind("file-create", (data: { filename: string; value: string }) => {
+        setFiles((prev) => ({ ...prev, [data.filename]: data.value }));
+      });
+
+      channel.bind("file-delete", (data: { filename: string }) => {
+        setFiles((prev) => {
+          const newFiles = { ...prev };
+          delete newFiles[data.filename];
+          return newFiles;
+        });
       });
 
       channel.bind("typing-update", (data: { username: string; isTyping: boolean }) => {
@@ -162,6 +212,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       console.error("Pusher Init Error:", err);
       setError(err.message || "Failed to initialize real-time connection.");
     }
+    });
 
     return () => {
       if (pusher) {
@@ -169,7 +220,7 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         pusher.disconnect();
       }
     };
-  }, [authLoading, username, roomId]);
+  }, [authLoading, username, roomId, roomPassword]);
 
   const handleCopyLink = () => {
     const shareUrl = window.location.href;
@@ -183,19 +234,18 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
   const broadcastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleCodeChange = (newVal: string) => {
-    setCode((prev) => ({ ...prev, [activeTab]: newVal }));
+    setFiles((prev) => ({ ...prev, [activeFile]: newVal }));
     
     if (broadcastTimeoutRef.current) clearTimeout(broadcastTimeoutRef.current);
     
     broadcastTimeoutRef.current = setTimeout(async () => {
-      // Broadcast via API
       try {
         await fetch(`/api/room/${roomId}/action`, {
           method: "POST",
           body: JSON.stringify({
             type: "editor-change",
-            socket_id: currentUserSocketId, // IMPORTANT: Prevents cursor bounce
-            payload: { codeType: activeTab, value: newVal }
+            socket_id: currentUserSocketId,
+            payload: { filename: activeFile, value: newVal }
           })
         });
       } catch (err) {
@@ -203,6 +253,86 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
       }
     }, 500);
   };
+
+  const handleFileCreate = async (filename: string) => {
+    if (files[filename] !== undefined) return;
+    setFiles((prev) => ({ ...prev, [filename]: "" }));
+    setActiveFile(filename);
+    try {
+      await fetch(`/api/room/${roomId}/action`, {
+        method: "POST",
+        body: JSON.stringify({
+          type: "file-create",
+          socket_id: currentUserSocketId,
+          payload: { filename, value: "" }
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleFileDelete = async (filename: string) => {
+    setFiles((prev) => {
+      const newFiles = { ...prev };
+      delete newFiles[filename];
+      return newFiles;
+    });
+    if (activeFile === filename) {
+      const remainingFiles = Object.keys(files).filter(f => f !== filename);
+      if (remainingFiles.length > 0) setActiveFile(remainingFiles[0]);
+    }
+    try {
+      await fetch(`/api/room/${roomId}/action`, {
+        method: "POST",
+        body: JSON.stringify({
+          type: "file-delete",
+          socket_id: currentUserSocketId,
+          payload: { filename }
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  if (passwordRequired) {
+    return (
+      <div className="flex flex-col h-screen bg-transparent text-foreground overflow-hidden font-sans relative z-10">
+        <InteractiveWorkspaceBg />
+        <div className="flex-1 flex items-center justify-center relative z-20 p-4">
+          <div className="w-full max-w-md bg-white/60 backdrop-blur-xl border border-pink-200/60 rounded-3xl p-8 shadow-[0_8px_30px_rgba(236,72,153,0.15)] shadow-inner">
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center mb-4 border border-pink-200 shadow-sm">
+                <Lock size={28} />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 text-center tracking-tight drop-shadow-sm">Private Workspace</h3>
+              <p className="text-sm font-bold text-slate-600 text-center mt-2">
+                This workspace is protected. Please enter the password to join.
+              </p>
+            </div>
+            <form onSubmit={(e) => { e.preventDefault(); /* Dependency array will re-trigger useEffect when roomPassword changes if we structured it differently, but here we manually re-trigger by calling a separate submit function or just letting the user wait? Actually, changing roomPassword triggers the useEffect! */ }} className="space-y-4">
+              <input
+                type="password"
+                required
+                value={roomPassword}
+                onChange={(e) => setRoomPassword(e.target.value)}
+                placeholder="Enter password..."
+                className="w-full px-4 py-3 bg-white/60 backdrop-blur-sm border border-white/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white text-slate-800 placeholder:text-slate-500 shadow-inner"
+              />
+              <button 
+                type="submit"
+                disabled={verifyingPassword || !roomPassword}
+                className="w-full py-3 bg-pink-500 text-white rounded-xl font-bold hover:bg-pink-600 transition shadow-md shadow-pink-500/20 disabled:opacity-70 flex justify-center items-center gap-2"
+              >
+                {verifyingPassword ? <Loader2 className="w-5 h-5 animate-spin" /> : "Unlock Workspace"}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (authLoading || (!connected && !error)) {
     return (
@@ -270,39 +400,102 @@ export default function RoomPage({ params }: { params: Promise<{ roomId: string 
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden relative bg-transparent">
-        <aside className="w-80 border-r border-white/20 bg-white/40 backdrop-blur-md flex flex-col shrink-0 relative z-20">
-          <div className="flex border-b border-white/20 p-2 gap-1 bg-white/20">
-            <button onClick={() => setActiveTabSidebar("users")} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition cursor-pointer ${activeTabSidebar === "users" ? "bg-white/60 text-pink-600 shadow-sm" : "text-slate-500 hover:bg-white/40 hover:text-pink-600"}`}>
-              <Users size={14} className="inline mr-1" /> Users
+      {/* Main Workspace Layout */}
+      <div className="flex-1 flex overflow-hidden">
+        
+        {/* Primary Left Sidebar */}
+        <div className="w-80 shrink-0 flex flex-col bg-white/60 backdrop-blur-lg border-r border-pink-300/60 z-10">
+          <div className="flex border-b border-pink-200/60 p-2 gap-1 bg-white/40 shadow-sm">
+            <button 
+              onClick={() => setActiveTabSidebar("files")}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${activeTabSidebar === "files" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+              Files
             </button>
-            <button onClick={() => setActiveTabSidebar("chat")} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition cursor-pointer ${activeTabSidebar === "chat" ? "bg-white/60 text-pink-600 shadow-sm" : "text-slate-500 hover:bg-white/40 hover:text-pink-600"}`}>
-              <MessageSquare size={14} className="inline mr-1" /> Chat
+            <button 
+              onClick={() => setActiveTabSidebar("users")}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${activeTabSidebar === "users" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
+            >
+              <Users size={14} strokeWidth={2.5} />
+              Users
+            </button>
+            <button 
+              onClick={() => setActiveTabSidebar("chat")}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${activeTabSidebar === "chat" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
+            >
+              <MessageSquare size={14} strokeWidth={2.5} />
+              Chat
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto bg-transparent">
-            {activeTabSidebar === "users" ? (
+          <div className="p-2 border-b border-white/30 font-black text-[10px] uppercase tracking-widest text-pink-400 bg-white/20">
+            {activeTabSidebar === "files" && "Workspace Explorer"}
+            {activeTabSidebar === "users" && "Active Users"}
+            {activeTabSidebar === "chat" && "Team Communication"}
+          </div>
+          <div className="flex-1 overflow-hidden relative">
+            {activeTabSidebar === "files" && (
+              <FileExplorer 
+                files={files} 
+                activeFile={activeFile} 
+                onFileSelect={setActiveFile} 
+                onFileCreate={handleFileCreate}
+                onFileDelete={handleFileDelete}
+              />
+            )}
+            {activeTabSidebar === "users" && (
               <RoomSidebar users={users} currentUserSocketId={currentUserSocketId} typingUsers={typingUsers} roomId={roomId} isConnected={pusherConnected} />
-            ) : (
-              <ChatPanel roomId={roomId} username={username} messages={messages} />
+            )}
+            {activeTabSidebar === "chat" && (
+              <ChatPanel roomId={roomId} username={username} messages={messages} typingUsers={typingUsers} />
             )}
           </div>
-        </aside>
+        </div>
 
-        <main className="flex-1 flex flex-col lg:flex-row overflow-hidden bg-transparent relative z-20">
-          <div className="flex-1 flex flex-col border-r border-white/20 bg-white/20 backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.02)] z-10">
-            <PlaygroundEditor
-              code={code[activeTab]} codeType={activeTab}
-              onChange={handleCodeChange} activeTab={activeTab} setActiveTab={setActiveTab}
-              roomId={roomId} username={username}
-            />
+        {/* Center: Editor */}
+        <div className="flex-1 flex flex-col min-w-0 border-r border-pink-300/60 bg-white/30 backdrop-blur-md">
+          {/* Editor Header / Tabs */}
+          <div className="flex bg-white/40 border-b border-pink-200/60 overflow-x-auto custom-scroll">
+            {Object.keys(files).map((filename) => (
+              <button
+                key={filename}
+                onClick={() => setActiveFile(filename)}
+                className={`px-4 py-2 text-xs font-bold font-mono transition border-r border-pink-200/50 whitespace-nowrap ${
+                  activeFile === filename
+                    ? "bg-white text-pink-600 border-t-2 border-t-pink-500 shadow-sm"
+                    : "text-slate-600 hover:bg-white/60 border-t-2 border-t-transparent hover:text-slate-900"
+                }`}
+              >
+                {filename.replace(/^\//, '')}
+              </button>
+            ))}
           </div>
-          <div className="flex-1 flex flex-col bg-white/10 backdrop-blur-sm">
-            <LivePreview html={code.html} css={code.css} js={code.js} />
+          <div className="flex-1 relative">
+            {Object.keys(files).length > 0 ? (
+              <PlaygroundEditor
+                code={files[activeFile] || ""}
+                onChange={handleCodeChange}
+                codeType={activeFile.split('.').pop() || "js"}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-slate-400 font-bold">
+                No files open. Create a file in the explorer.
+              </div>
+            )}
           </div>
-        </main>
+        </div>
+
+        {/* Right: Live Preview */}
+        <aside className="w-1/3 min-w-[300px] flex flex-col bg-white/40 backdrop-blur-md shrink-0">
+          <div className="p-2 border-b border-pink-200/60 bg-white/50 flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-2">Live Preview</span>
+          </div>
+          <div className="flex-1 border-0">
+            <LivePreview files={files} />
+          </div>
+        </aside>
       </div>
     </div>
   );
-}
 
+}
