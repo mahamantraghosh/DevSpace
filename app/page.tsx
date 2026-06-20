@@ -15,9 +15,11 @@ import {
   Zap,
   Globe,
   GitBranch,
-  Activity
+  Activity,
+  Bot
 } from "lucide-react";
 import InteractiveEditor from "@/components/InteractiveEditor";
+import TechStack from "@/components/TechStack";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "next-themes";
 
@@ -72,6 +74,7 @@ export default function Home() {
           <nav className="hidden md:flex items-center gap-8 text-sm font-black text-slate-800 dark:text-slate-200">
             <Link href="#features" className="hover:text-pink-600 transition-colors py-1 drop-shadow-md">Features</Link>
             <Link href="#vision" className="hover:text-pink-600 transition-colors py-1 drop-shadow-md">Vision</Link>
+            <Link href="#tech-stack" className="hover:text-pink-600 transition-colors py-1 drop-shadow-md">Tech Stack</Link>
           </nav>
 
           <div className="flex items-center gap-5">
@@ -163,17 +166,25 @@ export default function Home() {
         </section>
 
         {/* Features Grid - Glassmorphic */}
-        <section id="features" className="w-full py-24 relative z-10">
-          <div className="container mx-auto px-4 md:px-8 max-w-6xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
+        <section id="features" className="w-full py-24 relative z-10 border-t border-slate-200/50 dark:border-slate-800/50">
+          <div className="container mx-auto px-4 md:px-8 max-w-[1200px]">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 mb-4 inline-block tracking-tight">
+                Powerful Features
+              </h2>
+              <p className="text-slate-600 dark:text-slate-400 text-lg">
+                Amazing stack of divine capabilities built in MantraCode to revolutionize how you and your team build software together.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mx-auto">
 
               <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
                 <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <Code className="w-7 h-7 text-pink-600 drop-shadow-sm" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-3 drop-shadow-md">Synchronous Engine</h3>
+                <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-3 drop-shadow-md">Synchronous Platform</h3>
                 <p className="text-slate-800 dark:text-slate-200 text-base font-bold leading-relaxed drop-shadow-sm">
-                  Operational Transformation ensures that every keystroke is synced globally in milliseconds, preventing conflicts and maintaining perfect state.
+                  our Platform ensures that every keystroke from all the users ar synced in realtime globally in milliseconds, preventing conflicts and maintainig perfect state for multiple users.
                 </p>
               </div>
 
@@ -191,7 +202,7 @@ export default function Home() {
                 <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <MessageSquare className="w-7 h-7 text-pink-600 drop-shadow-sm" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-3 drop-shadow-md">Integrated Presence</h3>
+                <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-3 drop-shadow-md">Integrated Live Chat and Presence</h3>
                 <p className="text-slate-800 dark:text-slate-200 text-base font-bold leading-relaxed drop-shadow-sm">
                   See exactly who is online, who is typing, and chat seamlessly in the sidebar without breaking your coding flow.
                 </p>
@@ -207,9 +218,31 @@ export default function Home() {
                 </p>
               </div>
 
+              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                  <Bot className="w-7 h-7 text-pink-600 drop-shadow-sm" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-3 drop-shadow-md">Mantra AI Assistant</h3>
+                <p className="text-slate-800 dark:text-slate-200 text-base font-bold leading-relaxed drop-shadow-sm">
+                  Your built in intelligent companion. Generate code, debug errors, and brainstorm ideas effortlessly right inside your interactive workspace, using gemini API keu for this(gemini flash)
+                </p>
+              </div>
+
+              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
+                  <Globe className="w-7 h-7 text-pink-600 drop-shadow-sm" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-950 dark:text-white mb-3 drop-shadow-md">Live Preview & Sharing</h3>
+                <p className="text-slate-800 dark:text-slate-200 text-base font-bold leading-relaxed drop-shadow-sm">
+                  Share your active workspace via a simple link. Let anyone join as a spectator or contributor to preview UI changes instantly.
+                </p>
+              </div>
+
             </div>
           </div>
         </section>
+
+        <TechStack />
 
       </main>
 
