@@ -69,7 +69,7 @@ export default function ScrollBackground() {
         className={`fixed inset-0 pointer-events-none transition-all duration-1000 z-[-1] ${pathname === '/'
           ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[4px]'
           : pathname === '/dashboard'
-            ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px]' // Dashboard specific blur
+            ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[0px]' // Dashboard specific blur
             : 'bg-transparent'
           }`}
       ></div>
