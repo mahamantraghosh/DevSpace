@@ -36,12 +36,12 @@ export default function FileExplorer({ files, activeFile, onFileSelect, onFileCr
   };
 
   return (
-    <div className="flex flex-col h-full bg-white/40 backdrop-blur-md border-r border-white/50 w-48 shrink-0 select-none">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/30 text-xs font-bold text-slate-500 uppercase tracking-wider">
+    <div className="flex flex-col h-full bg-transparent border-r border-transparent w-full shrink-0 select-none">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-pink-200/50 text-xs font-bold text-pink-700/80 uppercase tracking-wider">
         <span>Explorer</span>
         <button 
           onClick={() => setIsCreating(true)}
-          className="hover:bg-slate-200/50 p-1 rounded transition text-slate-600 hover:text-slate-900"
+          className="hover:bg-pink-200/50 p-1 rounded transition text-pink-600 hover:text-pink-900"
           title="New File"
         >
           <Plus size={14} />
@@ -63,16 +63,17 @@ export default function FileExplorer({ files, activeFile, onFileSelect, onFileCr
           </form>
         )}
 
-        {Object.keys(files).sort().map(filename => (
-          <div 
-            key={filename}
-            onClick={() => onFileSelect(filename)}
-            className={`group flex items-center justify-between px-3 py-1.5 cursor-pointer text-xs transition-colors ${
-              activeFile === filename 
-                ? "bg-pink-100 text-pink-700 font-bold border-l-2 border-pink-500" 
-                : "text-slate-700 hover:bg-slate-100/50 border-l-2 border-transparent hover:text-slate-900"
-            }`}
-          >
+        <div className="flex flex-col gap-1 px-2">
+          {Object.keys(files).sort().map(filename => (
+            <div 
+              key={filename}
+              onClick={() => onFileSelect(filename)}
+              className={`group flex items-center justify-between px-3 py-2 cursor-pointer text-xs transition-colors rounded-r-md ${
+                activeFile === filename 
+                  ? "bg-pink-200/80 text-pink-900 font-black border-l-4 border-pink-600 shadow-sm" 
+                  : "bg-pink-100/60 text-pink-800 border-l-4 border-transparent hover:bg-pink-200/60 hover:text-pink-900"
+              }`}
+            >
             <div className="flex items-center gap-2 truncate">
               {getFileIcon(filename)}
               <span className="truncate">{filename.replace(/^\//, '')}</span>
@@ -89,6 +90,7 @@ export default function FileExplorer({ files, activeFile, onFileSelect, onFileCr
             </button>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

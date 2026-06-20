@@ -54,6 +54,15 @@ export default function ChatPanel({ roomId, username, messages, typingUsers = {}
     return colors[Math.abs(hash) % colors.length];
   };
 
+  const getMessageBubbleColor = (name: string) => {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const colors = ["bg-blue-50 border-blue-200", "bg-purple-50 border-purple-200", "bg-emerald-50 border-emerald-200", "bg-orange-50 border-orange-200", "bg-yellow-50 border-yellow-200"];
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   return (
     <div className="flex flex-col h-full bg-transparent p-4">
       <div className="flex-1 overflow-y-auto space-y-4 custom-scroll pr-2">
@@ -82,8 +91,8 @@ export default function ChatPanel({ roomId, username, messages, typingUsers = {}
                     isMe 
                       ? "bg-pink-50 border-pink-200 text-slate-800" 
                       : isAI 
-                        ? "bg-gradient-to-br from-indigo-50 to-white border-indigo-200 text-slate-800 shadow-sm" 
-                        : "bg-slate-50 border-slate-200 text-slate-800"
+                        ? "bg-indigo-50 border-indigo-200 text-slate-800 shadow-sm" 
+                        : `${getMessageBubbleColor(msg.sender)} text-slate-800`
                   }`}>
                     {msg.text}
                   </div>

@@ -21,6 +21,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MantraCode - Real-Time IDE",
   description: "A collaborative real-time editor by Mahamantra",
+  icons: {
+    icon: '/icon.png?v=8',
+  },
 };
 
 export default function RootLayout({

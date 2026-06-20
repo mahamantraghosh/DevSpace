@@ -426,7 +426,7 @@ export default function RoomPage() {
               Chat
             </button>
           </div>
-          <div className="p-2 border-b border-white/30 font-black text-[10px] uppercase tracking-widest text-pink-400 bg-white/20">
+          <div className="p-2 border-b border-white/30 font-black text-[10px] uppercase tracking-widest text-pink-500 bg-white/20">
             {activeTabSidebar === "files" && "Workspace Explorer"}
             {activeTabSidebar === "users" && "Active Users"}
             {activeTabSidebar === "chat" && "Team Communication"}

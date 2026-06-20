@@ -119,3 +119,30 @@ body {
 .animate-nature-float {
   animation: natureFloat 12s ease-in-out infinite;
 }
+
+/* Explicit dark mode overrides for File Explorer items */
+.dark .bg-pink-100\/60 { background-color: rgba(30, 41, 59, 0.6) !important; }
+.dark .bg-pink-200\/60 { background-color: rgba(51, 65, 85, 0.8) !important; }
+.dark .bg-pink-200\/80 { background-color: rgba(51, 65, 85, 0.9) !important; }
+.dark .text-pink-800 { color: #f8fafc !important; }
+.dark .text-pink-900 { color: #f1f5f9 !important; }
+.dark .border-pink-200\/50 { border-color: rgba(51, 65, 85, 0.8) !important; }
+
+/* Chat Bubble Dark Mode Fixes */
+.dark .bg-indigo-50 { background-color: rgba(30, 27, 75, 0.6) !important; }
+.dark .border-indigo-200 { border-color: rgba(67, 56, 202, 0.4) !important; }
+
+.dark .bg-blue-50 { background-color: rgba(15, 23, 42, 0.8) !important; }
+.dark .border-blue-200 { border-color: rgba(51, 65, 85, 0.5) !important; }
+
+.dark .bg-purple-50 { background-color: rgba(30, 20, 50, 0.8) !important; }
+.dark .border-purple-200 { border-color: rgba(88, 28, 135, 0.5) !important; }
+
+.dark .bg-emerald-50 { background-color: rgba(2, 44, 34, 0.8) !important; }
+.dark .border-emerald-200 { border-color: rgba(6, 78, 59, 0.5) !important; }
+
+.dark .bg-orange-50 { background-color: rgba(67, 20, 7, 0.8) !important; }
+.dark .border-orange-200 { border-color: rgba(124, 45, 18, 0.5) !important; }
+
+.dark .bg-yellow-50 { background-color: rgba(66, 32, 6, 0.8) !important; }
+.dark .border-yellow-200 { border-color: rgba(113, 63, 18, 0.5) !important; }
