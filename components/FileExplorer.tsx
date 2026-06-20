@@ -37,7 +37,7 @@ export default function FileExplorer({ files, activeFile, onFileSelect, onFileCr
 
   return (
     <div className="flex flex-col h-full bg-transparent border-r border-transparent w-full shrink-0 select-none">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-pink-200/50 text-xs font-bold text-pink-700/80 uppercase tracking-wider">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-pink-400/70 text-xs font-bold text-pink-700/80 uppercase tracking-wider">
         <span>Explorer</span>
         <button 
           onClick={() => setIsCreating(true)}

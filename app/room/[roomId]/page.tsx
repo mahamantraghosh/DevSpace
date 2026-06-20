@@ -402,8 +402,8 @@ export default function RoomPage() {
       <div className="flex-1 flex overflow-hidden">
         
         {/* Primary Left Sidebar */}
-        <div className="w-80 shrink-0 flex flex-col bg-white/60 backdrop-blur-lg border-r border-pink-300/60 z-10">
-          <div className="flex border-b border-pink-200/60 p-2 gap-1 bg-white/40 shadow-sm">
+        <div className="w-80 shrink-0 flex flex-col bg-white/60 backdrop-blur-lg border-r border-pink-400/70 z-10">
+          <div className="flex border-b border-pink-300/80 p-2 gap-1 bg-white/40 shadow-sm">
             <button 
               onClick={() => setActiveTabSidebar("files")}
               className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${activeTabSidebar === "files" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
@@ -426,7 +426,7 @@ export default function RoomPage() {
               Chat
             </button>
           </div>
-          <div className="p-2 border-b border-white/30 font-black text-[10px] uppercase tracking-widest text-pink-500 bg-white/20">
+          <div className="p-2 border-b border-pink-400/70 font-black text-[10px] uppercase tracking-widest text-pink-600 bg-white/30">
             {activeTabSidebar === "files" && "Workspace Explorer"}
             {activeTabSidebar === "users" && "Active Users"}
             {activeTabSidebar === "chat" && "Team Communication"}
@@ -451,17 +451,17 @@ export default function RoomPage() {
         </div>
 
         {/* Center: Editor */}
-        <div className="flex-1 flex flex-col min-w-0 border-r border-pink-300/60 bg-white/30 backdrop-blur-md">
+        <div className="flex-1 flex flex-col min-w-0 border-r border-pink-400/70 bg-white/30 backdrop-blur-md">
           {/* Editor Header / Tabs */}
-          <div className="flex bg-white/40 border-b border-pink-200/60 overflow-x-auto custom-scroll">
+          <div className="flex bg-white/50 border-b border-pink-400/70 overflow-x-auto custom-scroll shadow-sm">
             {Object.keys(files).map((filename) => (
               <button
                 key={filename}
                 onClick={() => setActiveFile(filename)}
-                className={`px-4 py-2 text-xs font-bold font-mono transition border-r border-pink-200/50 whitespace-nowrap ${
+                className={`px-4 py-2 text-xs font-bold font-mono transition border-r border-pink-400/50 whitespace-nowrap ${
                   activeFile === filename
-                    ? "bg-white text-pink-600 border-t-2 border-t-pink-500 shadow-sm"
-                    : "text-slate-600 hover:bg-white/60 border-t-2 border-t-transparent hover:text-slate-900"
+                    ? "bg-white text-pink-700 border-t-2 border-t-pink-500 shadow-sm"
+                    : "text-slate-600 hover:bg-white/80 border-t-2 border-t-transparent hover:text-pink-700"
                 }`}
               >
                 {filename.replace(/^\//, '')}

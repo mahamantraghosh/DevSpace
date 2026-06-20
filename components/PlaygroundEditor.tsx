@@ -37,18 +37,22 @@ export default function PlaygroundEditor({
     monaco.editor.defineTheme("mantracode-light", {
       base: "vs", inherit: true,
       rules: [
-        { token: "keyword", foreground: "db2777", fontStyle: "bold" },      // pink-600
-        { token: "identifier", foreground: "1e293b" },                      // slate-800
-        { token: "string", foreground: "ca8a04" },                          // yellow-600
-        { token: "tag", foreground: "db2777", fontStyle: "bold" },          // pink-600
-        { token: "attribute.name", foreground: "ca8a04" },                  // yellow-600
-        { token: "attribute.value", foreground: "db2777" },                 // pink-600
-        { token: "comment", foreground: "94a3b8", fontStyle: "italic" },    // slate-400
-        { token: "number", foreground: "db2777" },                          // pink-600
-        { token: "type", foreground: "ca8a04", fontStyle: "bold" },         // yellow-600
-        { token: "function", foreground: "ca8a04", fontStyle: "bold" },     // yellow-600
+        { token: "", foreground: "1e3a8a", fontStyle: "bold" },             // Default plain text (e.g., inside <p> tags)
+        { token: "keyword", foreground: "be185d", fontStyle: "bold" },      // pink-700 (Deep prominent pink)
+        { token: "identifier", foreground: "1e3a8a", fontStyle: "bold" },   // blue-900 (Deep Royal Blue for contrast instead of black)
+        { token: "string", foreground: "6d28d9", fontStyle: "bold" },       // violet-700 (Deep violet contrast)
+        { token: "tag", foreground: "be185d", fontStyle: "bold" },          // pink-700
+        { token: "attribute.name", foreground: "4338ca", fontStyle: "bold" }, // indigo-700 (Contrasting dark blue)
+        { token: "attribute.value", foreground: "be185d" },                 // pink-700
+        { token: "comment", foreground: "15803d", fontStyle: "italic bold" }, // green-700 (Deep green as requested)
+        { token: "number", foreground: "c026d3", fontStyle: "bold" },       // fuchsia-600
+        { token: "type", foreground: "4338ca", fontStyle: "bold" },         // indigo-700
+        { token: "function", foreground: "6d28d9", fontStyle: "bold" },     // violet-700
       ],
-      colors: { "editor.background": "#ffffff40" } // Semi-transparent glass for light mode
+      colors: { 
+        "editor.background": "#ffffff40",
+        "editor.foreground": "#1e3a8a"
+      } // Semi-transparent glass for light mode
     });
     
     monaco.editor.defineTheme("mantracode-dark", {
