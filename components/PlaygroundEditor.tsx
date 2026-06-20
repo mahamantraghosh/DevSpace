@@ -44,7 +44,18 @@ export default function PlaygroundEditor({
     
     monaco.editor.defineTheme("mantracode-light", {
       base: "vs", inherit: true,
-      rules: [],
+      rules: [
+        { token: "keyword", foreground: "db2777", fontStyle: "bold" },      // pink-600
+        { token: "identifier", foreground: "1e293b" },                      // slate-800
+        { token: "string", foreground: "ca8a04" },                          // yellow-600
+        { token: "tag", foreground: "db2777", fontStyle: "bold" },          // pink-600
+        { token: "attribute.name", foreground: "ca8a04" },                  // yellow-600
+        { token: "attribute.value", foreground: "db2777" },                 // pink-600
+        { token: "comment", foreground: "94a3b8", fontStyle: "italic" },    // slate-400
+        { token: "number", foreground: "db2777" },                          // pink-600
+        { token: "type", foreground: "ca8a04", fontStyle: "bold" },         // yellow-600
+        { token: "function", foreground: "ca8a04", fontStyle: "bold" },     // yellow-600
+      ],
       colors: { "editor.background": "#ffffff40" } // Semi-transparent glass for light mode
     });
     

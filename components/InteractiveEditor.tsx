@@ -16,7 +16,7 @@ import {
 
 interface ChatMessage {
   id: string;
-  sender: "You" | "Alex" | "Sarah";
+  sender: "You" | "Krishna" | "Mahamantra";
   text: string;
   time: string;
   avatarColor: string;
@@ -30,15 +30,15 @@ export default function InteractiveEditor() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
     {
       id: "1",
-      sender: "Alex",
-      text: "Hey! Just joined the room. Let's build that glowing clock interface.",
+      sender: "Krishna",
+      text: "Oi Mantra did you implement the idea that i told you last night?",
       time: "17:34",
       avatarColor: "bg-pink-500",
     },
     {
       id: "2",
-      sender: "Sarah",
-      text: "Looks cool. I'll add the background particle styling in styles.css.",
+      sender: "Mahamantra",
+      text: "Yes Krishna!! i am working on it🌸",
       time: "17:35",
       avatarColor: "bg-yellow-500",
     },
@@ -123,15 +123,15 @@ export default function InteractiveEditor() {
       setTimeout(() => {
         setIsTyping(false);
         const replies = [
-          "Nice! That works perfectly.",
-          "Awesome. I see the live preview updated on my side too.",
-          "Let's add a gradient border to the preview next.",
-          "This real-time sync is blazing fast!"
+          "Kemon laglo?",
+          "Yes bro ami ei part ta kore nebo",
+          "tui frontend ta samla, ami backend ta dekhchi, lets share work",
+          "Eksathe code korte ki moja asche, darun workspace toh eta!!"
         ];
         const randomReply = replies[Math.floor(Math.random() * replies.length)];
         const replyMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          sender: Math.random() > 0.5 ? "Sarah" : "Alex",
+          sender: Math.random() > 0.5 ? "Mahamantra" : "Krishna",
           text: randomReply,
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           avatarColor: Math.random() > 0.5 ? "bg-yellow-500" : "bg-pink-500",
@@ -223,8 +223,8 @@ export default function InteractiveEditor() {
         <div className="flex items-center gap-2">
           <div className="flex items-center -space-x-1.5 mr-2">
             <div className="w-7 h-7 rounded-full bg-pink-500 border-[2px] border-white/80 flex items-center justify-center text-[10px] font-bold text-white shadow-md z-30" title="You">Y</div>
-            <div className="w-7 h-7 rounded-full bg-yellow-400 border-[2px] border-white/80 flex items-center justify-center text-[10px] font-bold text-white shadow-md animate-pulse z-20" title="Alex">A</div>
-            <div className="w-7 h-7 rounded-full bg-pink-400 border-[2px] border-white/80 flex items-center justify-center text-[10px] font-bold text-white shadow-md z-10" title="Sarah">S</div>
+            <div className="w-7 h-7 rounded-full bg-yellow-400 border-[2px] border-white/80 flex items-center justify-center text-[10px] font-bold text-white shadow-md animate-pulse z-20" title="Krishna">K</div>
+            <div className="w-7 h-7 rounded-full bg-pink-400 border-[2px] border-white/80 flex items-center justify-center text-[10px] font-bold text-white shadow-md z-10" title="Mahamantra">M</div>
           </div>
           <div className="hidden sm:flex items-center gap-1 text-[11px] font-bold text-emerald-700 px-2 py-1 rounded-full bg-emerald-50/80 border border-emerald-200/80 backdrop-blur-md shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -239,8 +239,8 @@ export default function InteractiveEditor() {
           type="button"
           onClick={() => setMobileTab("code")}
           className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${mobileTab === "code"
-              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
-              : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
+            ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
+            : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
             }`}
         >
           Code
@@ -249,8 +249,8 @@ export default function InteractiveEditor() {
           type="button"
           onClick={() => setMobileTab("preview")}
           className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${mobileTab === "preview"
-              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
-              : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
+            ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
+            : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
             }`}
         >
           Preview
@@ -259,8 +259,8 @@ export default function InteractiveEditor() {
           type="button"
           onClick={() => setMobileTab("chat")}
           className={`flex-1 py-2.5 text-center text-xs font-mono font-bold transition-all cursor-pointer ${mobileTab === "chat"
-              ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
-              : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
+            ? "text-pink-600 border-b-2 border-pink-500 bg-white/40"
+            : "text-slate-600 hover:text-slate-800 border-b-2 border-transparent"
             }`}
         >
           Chat
@@ -374,7 +374,7 @@ export default function InteractiveEditor() {
               </div>
             ))}
 
-            {/* Simulating code being typed by Sarah in JS file */}
+            {/* Simulating code being typed by Mahamantra in JS file */}
             {activeTab === "js" && (
               <div className="flex hover:bg-white/40 px-1 rounded transition-colors relative">
                 <span className="w-8 text-slate-400 text-right select-none pr-3 block border-r border-white/40 mr-3 font-semibold">
@@ -384,7 +384,7 @@ export default function InteractiveEditor() {
                   {simulatedCodeLine}
                   <span className="inline-block w-1.5 h-4 bg-yellow-500 animate-pulse align-middle ml-0.5"></span>
                   <span className="absolute -top-5 left-full bg-yellow-400 text-slate-900 text-[9px] font-sans px-1 rounded shadow-md whitespace-nowrap z-10 font-bold border border-yellow-500/50">
-                    Sarah
+                    Mahamantra
                   </span>
                 </span>
               </div>
@@ -393,11 +393,11 @@ export default function InteractiveEditor() {
             {/* Render a visual cursor animation in HTML/CSS tab as well */}
             {activeTab === "html" && (
               <div className="relative">
-                {/* Floating remote cursor for Alex */}
+                {/* Floating remote cursor for Krishna */}
                 <span className="absolute top-[160px] left-[180px] flex items-center pointer-events-none select-none">
                   <span className="h-4 w-0.5 bg-yellow-500 animate-pulse"></span>
                   <span className="bg-yellow-400 text-slate-900 text-[9px] font-sans px-1 py-0.2 rounded-sm shadow-md whitespace-nowrap ml-0.5 select-none font-bold border border-yellow-500/50">
-                    Alex
+                    Krishna
                   </span>
                 </span>
               </div>
