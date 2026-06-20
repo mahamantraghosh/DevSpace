@@ -88,7 +88,7 @@ Please provide a helpful, concise response. Use Markdown for code formatting.`;
       }
 
       const aiMessage = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         sender: "Mantra AI",
         text: aiText,
         timestamp: Date.now()
@@ -113,7 +113,7 @@ Please provide a helpful, concise response. Use Markdown for code formatting.`;
       if (rawRoom) {
         const room = typeof rawRoom === "string" ? JSON.parse(rawRoom) : rawRoom;
         const message = {
-          id: Date.now().toString(),
+          id: crypto.randomUUID(),
           sender: payload.sender,
           text: payload.text,
           timestamp: Date.now()
@@ -125,8 +125,8 @@ Please provide a helpful, concise response. Use Markdown for code formatting.`;
         await pusherServer.trigger(channelName, "receive-message", message, socket_id ? { socket_id } : undefined);
         
         if (payload.text.includes("@MantraAI")) {
-          // Fire and forget AI response
-          generateAIResponse(roomId, payload.text, pusherServer, redis);
+          // Await the AI response so Vercel doesn't kill the serverless function before it finishes
+          await generateAIResponse(roomId, payload.text, pusherServer, redis);
         }
         
         return NextResponse.json(message);
