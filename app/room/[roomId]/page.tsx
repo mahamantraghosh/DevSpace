@@ -4,7 +4,7 @@ import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Pusher, { PresenceChannel } from "pusher-js";
-import { Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check, AlertCircle } from "lucide-react";
+import { Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check, AlertCircle, Lock } from "lucide-react";
 import PlaygroundEditor from "@/components/PlaygroundEditor";
 import LivePreview from "@/components/LivePreview";
 import ChatPanel from "@/components/ChatPanel";
@@ -39,10 +39,12 @@ interface CodeState {
   js: string;
 }
 
-export default function RoomPage({ params }: { params: Promise<{ roomId: string }> }) {
+import { useParams } from "next/navigation";
+
+export default function RoomPage() {
   const router = useRouter();
-  const resolvedParams = use(params);
-  const roomId = resolvedParams.roomId;
+  const params = useParams();
+  const roomId = params?.roomId as string;
 
   const { user, loading: authLoading } = useAuth();
   const username = user?.username || "";

@@ -19,8 +19,8 @@ export async function POST(
     const rawMeta = await redis.get(`room_meta:${roomId}`);
     if (rawMeta) {
       const meta = typeof rawMeta === "string" ? JSON.parse(rawMeta) : rawMeta;
-      if (meta.visibility === "private") {
-        if (!password || password !== meta.password) {
+      if (meta.visibility === "private" && meta.password) {
+        if (password !== meta.password) {
           return NextResponse.json(
             { error: "Password Required", requiresPassword: true },
             { status: 401 }

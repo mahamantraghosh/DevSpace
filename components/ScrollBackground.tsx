@@ -46,7 +46,7 @@ export default function ScrollBackground() {
   if (!mounted) return null;
 
   const images = theme === "dark"
-    ? ["https://i.pinimg.com/236x/4d/24/ba/4d24ba454a84f7a9e67677e2b020b9c4.jpg", "https://creator.nightcafe.studio/jobs/UMfJp2JtSK1zmB5C9bv5/UMfJp2JtSK1zmB5C9bv5--0--vuoem.jpg"]
+    ? ["dark_bg1.png", "https://creator.nightcafe.studio/jobs/UMfJp2JtSK1zmB5C9bv5/UMfJp2JtSK1zmB5C9bv5--0--vuoem.jpg"]
     : [
       "https://thumbs.dreamstime.com/b/radha-krishna-vector-illustration-holding-hands-against-pink-purple-gradient-cloud-background-depicted-wears-422980769.jpg",
       "https://paintwaint.in/cdn/shop/files/Background-2025-04-03T144407.378.png"
