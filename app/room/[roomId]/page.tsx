@@ -11,6 +11,7 @@ import ChatPanel from "@/components/ChatPanel";
 import RoomSidebar from "@/components/RoomSidebar";
 import FileExplorer from "@/components/FileExplorer";
 import InteractiveWorkspaceBg from "@/components/InteractiveWorkspaceBg";
+import NavbarThemeToggle from "@/components/NavbarThemeToggle";
 import confetti from "canvas-confetti";
 import { useAuth } from "@/context/AuthContext";
 
@@ -393,6 +394,7 @@ export default function RoomPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <NavbarThemeToggle />
           <button onClick={handleCopyLink} className="px-3 py-1.5 text-xs font-bold border border-pink-200 bg-pink-50 rounded-lg text-pink-600 hover:bg-pink-100 transition cursor-pointer flex items-center gap-1.5 shadow-sm">
             {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />} {copied ? "Copied!" : "Copy Link"}
           </button>

@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Loader2, Sparkles, LogOut, Copy, Check, Users, Lock, Unlock, Zap, Settings, Trash } from "lucide-react";
+import { Plus, Loader2, Sparkles, LogOut, Copy, Check, Users, Lock, Unlock, Zap, Settings, Trash, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import NavbarThemeToggle from "@/components/NavbarThemeToggle";
 import toast from "react-hot-toast";
 
 interface Room {
@@ -212,6 +213,7 @@ export default function DashboardPage() {
           </Link>
 
           <div className="flex items-center gap-4">
+            <NavbarThemeToggle />
             <div className="flex items-center gap-3">
               <div className="text-right hidden sm:block">
                 <p className="text-base font-black text-slate-950 dark:text-white drop-shadow-sm">{user.username || "User"}</p>
@@ -297,12 +299,12 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         {room.creatorId === user.id && (
-                          <div className="flex items-center gap-1.5 mr-2">
-                            <button onClick={() => openEditModal(room)} className="p-1 text-slate-400 hover:text-pink-600 hover:bg-pink-50 rounded transition" title="Edit">
-                              <Settings className="w-4 h-4" />
+                          <div className="flex items-center gap-2 mr-2">
+                            <button onClick={() => openEditModal(room)} className="p-2 text-blue-600 bg-blue-100 hover:bg-blue-600 hover:text-white rounded-lg transition-all border border-blue-200 shadow-sm" title="Edit Workspace">
+                              <Pencil className="w-4 h-4" />
                             </button>
-                            <button onClick={() => confirmDelete(room)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="Delete">
-                              <Trash className="w-4 h-4" />
+                            <button onClick={() => confirmDelete(room)} className="p-2 text-red-600 bg-red-100 hover:bg-red-600 hover:text-white rounded-lg transition-all border border-red-200 shadow-sm" title="Delete Workspace">
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         )}
