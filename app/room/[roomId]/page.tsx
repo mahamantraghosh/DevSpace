@@ -71,6 +71,36 @@ export default function RoomPage() {
 
   const [currentUserSocketId, setCurrentUserSocketId] = useState<string>("");
 
+  const [leftWidth, setLeftWidth] = useState(320);
+  const [rightWidth, setRightWidth] = useState(400);
+  const isDraggingLeft = useRef(false);
+  const isDraggingRight = useRef(false);
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDraggingLeft.current) {
+        setLeftWidth(Math.max(200, Math.min(e.clientX, window.innerWidth / 2.5)));
+      } else if (isDraggingRight.current) {
+        setRightWidth(Math.max(250, Math.min(window.innerWidth - e.clientX, window.innerWidth / 1.5)));
+      }
+    };
+    const handleMouseUp = () => {
+      isDraggingLeft.current = false;
+      isDraggingRight.current = false;
+      setIsDragging(false);
+      document.body.style.cursor = 'default';
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
@@ -167,15 +197,18 @@ export default function RoomPage() {
       const channel = pusher.subscribe(`presence-${roomId}`) as PresenceChannel;
 
       channel.bind("pusher:subscription_succeeded", () => {
-        const members: User[] = [];
+        const membersMap = new Map<string, User>();
         channel.members.each((member: PusherMember) => {
-          members.push({ socketId: member.id, username: member.info.username });
+          membersMap.set(member.id, { socketId: member.id, username: member.info.username });
         });
-        setUsers(members);
+        setUsers(Array.from(membersMap.values()));
       });
 
       channel.bind("pusher:member_added", (member: PusherMember) => {
-        setUsers((prev) => [...prev, { socketId: member.id, username: member.info.username }]);
+        setUsers((prev) => {
+          if (prev.some(u => u.socketId === member.id)) return prev;
+          return [...prev, { socketId: member.id, username: member.info.username }];
+        });
       });
 
       channel.bind("pusher:member_removed", (member: PusherMember) => {
@@ -236,10 +269,40 @@ export default function RoomPage() {
   };
 
   const broadcastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isTypingRef = useRef<boolean>(false);
 
   const handleCodeChange = (newVal: string) => {
     setFiles((prev) => ({ ...prev, [activeFile]: newVal }));
     
+    // Broadcast typing status
+    if (!isTypingRef.current && currentUserSocketId) {
+      isTypingRef.current = true;
+      fetch(`/api/room/${roomId}/action`, {
+        method: "POST",
+        body: JSON.stringify({
+          type: "typing-status",
+          socket_id: currentUserSocketId,
+          payload: { username, isTyping: true }
+        })
+      }).catch(console.error);
+    }
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
+      isTypingRef.current = false;
+      if (currentUserSocketId) {
+        fetch(`/api/room/${roomId}/action`, {
+          method: "POST",
+          body: JSON.stringify({
+            type: "typing-status",
+            socket_id: currentUserSocketId,
+            payload: { username, isTyping: false }
+          })
+        }).catch(console.error);
+      }
+    }, 1500);
+
     if (broadcastTimeoutRef.current) clearTimeout(broadcastTimeoutRef.current);
     
     broadcastTimeoutRef.current = setTimeout(async () => {
@@ -402,7 +465,7 @@ export default function RoomPage() {
       <div className="flex-1 flex overflow-hidden">
         
         {/* Primary Left Sidebar */}
-        <div className="w-80 shrink-0 flex flex-col bg-white/60 backdrop-blur-lg border-r border-pink-400/70 z-10">
+        <div style={{ width: leftWidth }} className="shrink-0 flex flex-col bg-white/60 backdrop-blur-lg z-10 relative">
           <div className="flex border-b border-pink-300/80 p-2 gap-1 bg-white/40 shadow-sm">
             <button 
               onClick={() => setActiveTabSidebar("files")}
@@ -450,8 +513,18 @@ export default function RoomPage() {
           </div>
         </div>
 
+        {/* Resizer Left */}
+        <div 
+          className="w-1.5 bg-pink-400/40 hover:bg-pink-500 active:bg-pink-600 cursor-col-resize shrink-0 transition-colors relative z-20 shadow-sm"
+          onMouseDown={() => {
+            isDraggingLeft.current = true;
+            setIsDragging(true);
+            document.body.style.cursor = 'col-resize';
+          }}
+        />
+
         {/* Center: Editor */}
-        <div className="flex-1 flex flex-col min-w-0 border-r border-pink-400/70 bg-white/30 backdrop-blur-md">
+        <div className={`flex-1 flex flex-col min-w-0 bg-white/30 backdrop-blur-md relative ${isDragging ? 'pointer-events-none' : ''}`}>
           {/* Editor Header / Tabs */}
           <div className="flex bg-white/50 border-b border-pink-400/70 overflow-x-auto custom-scroll shadow-sm">
             {Object.keys(files).map((filename) => (
@@ -483,8 +556,18 @@ export default function RoomPage() {
           </div>
         </div>
 
+        {/* Resizer Right */}
+        <div 
+          className="w-1.5 bg-pink-400/40 hover:bg-pink-500 active:bg-pink-600 cursor-col-resize shrink-0 transition-colors relative z-20 shadow-sm"
+          onMouseDown={() => {
+            isDraggingRight.current = true;
+            setIsDragging(true);
+            document.body.style.cursor = 'col-resize';
+          }}
+        />
+
         {/* Right: Live Preview */}
-        <aside className="w-1/3 min-w-[300px] flex flex-col bg-white/40 backdrop-blur-md shrink-0">
+        <aside style={{ width: rightWidth }} className={`flex flex-col bg-white/40 backdrop-blur-md shrink-0 relative ${isDragging ? 'pointer-events-none' : ''}`}>
           <div className="p-2 border-b border-pink-200/60 bg-white/50 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-2">Live Preview</span>
           </div>

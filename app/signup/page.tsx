@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Sparkles, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
+import SiteLogo from "@/components/SiteLogo";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -51,12 +52,9 @@ export default function SignupPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-white/10 dark:from-slate-800/40 dark:to-slate-900/10 pointer-events-none" />
           
           <div className="flex flex-col items-center mb-8 text-center relative z-10">
-            <Link href="/" className="flex items-center gap-2 mb-6 group">
-              <div className="w-10 h-10 rounded-xl bg-white/50 border border-white/60 dark:bg-slate-800/50 dark:border-slate-700/50 flex items-center justify-center group-hover:scale-105 transition-transform shadow-sm">
-                <Sparkles className="w-5 h-5 text-yellow-500" />
-              </div>
-              <span className="font-bold text-xl text-slate-800 dark:text-white">MantraCode</span>
-            </Link>
+            <div className="mb-6 flex justify-center">
+              <SiteLogo />
+            </div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Create an Account</h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm">Join MantraCode and start collaborating</p>
           </div>

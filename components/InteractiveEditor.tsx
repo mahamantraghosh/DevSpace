@@ -63,7 +63,7 @@ export default function InteractiveEditor() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   const currentTrack = PLAYLIST[currentTrackIndex];
 
   const handleNextTrack = () => {
@@ -526,123 +526,123 @@ export default function InteractiveEditor() {
               {/* Music Player Wrapper */}
               <div className="relative flex flex-col items-center gap-4 z-10">
                 {/* Music Player Widget Output */}
-                <div 
+                <div
                   className="relative group bg-white/50 border border-white/60 hover:border-pink-300/80 rounded-2xl p-4 w-[280px] shadow-2xl shadow-pink-500/10 backdrop-blur-2xl transition-all duration-300 flex flex-col gap-4"
                 >
-                <audio 
-                  ref={audioRef} 
-                  src={currentTrack.src} 
-                  onEnded={() => setIsPlayingMusic(false)}
-                  preload="metadata"
-                  onTimeUpdate={handleTimeUpdate}
-                  onLoadedMetadata={handleLoadedMetadata}
-                />
-                
-                {/* Top Section: Vinyl, Info, and Play Button */}
-                <div className="flex items-center gap-4">
-                  <div className={`relative shrink-0 w-14 h-14 rounded-full bg-slate-800 border-[3px] border-slate-900 shadow-lg flex items-center justify-center overflow-hidden ${isPlayingMusic ? 'animate-spin [animation-duration:3s]' : 'transition-transform duration-500'}`}>
-                    {/* Vinyl Grooves */}
-                    <div className="absolute inset-0 rounded-full border border-slate-700 m-[3px]"></div>
-                    <div className="absolute inset-0 rounded-full border border-slate-700 m-[8px]"></div>
-                    
-                    {/* Spinning Arrow Indicator */}
-                    <div className="absolute top-1 right-2 text-pink-400 drop-shadow-md rotate-45 z-0">
-                      <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L22 20H2L12 2Z"/></svg>
-                    </div>
-                    
-                    {/* Glare Reflection */}
-                    <div className="absolute top-0 right-1/2 w-4 h-1 bg-white/20 rounded-full blur-[1px]"></div>
-
-                    {/* Center Label */}
-                    <div className="relative w-4 h-4 bg-pink-500 rounded-full border border-pink-400 shadow-inner flex items-center justify-center z-10">
-                      <div className="w-1 h-1 bg-white/80 rounded-full shadow-sm"></div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0 flex flex-col relative">
-
-                    <h4 className="text-[9px] uppercase tracking-widest text-pink-600 font-mono font-black truncate leading-none mb-1 flex items-center gap-1">
-                      {isPlayingMusic ? (
-                        <><span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span> Playing</>
-                      ) : 'Paused'}
-                    </h4>
-                    <select 
-                      value={currentTrackIndex}
-                      onChange={(e) => {
-                        setCurrentTrackIndex(Number(e.target.value));
-                        if (!isPlayingMusic) {
-                          setIsPlayingMusic(true);
-                          window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'interactive' } }));
-                        }
-                      }}
-                      className="text-[13px] font-bold text-slate-800 bg-transparent outline-none cursor-pointer appearance-none truncate leading-tight mb-1 hover:text-pink-600 transition-colors w-full"
-                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ec4899' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', paddingRight: '16px' }}
-                    >
-                      {PLAYLIST.map((t, i) => (
-                        <option key={i} value={i} className="text-slate-800">{t.title}</option>
-                      ))}
-                    </select>
-                    
-                    {/* Music visuals according to beat */}
-                    <div className="flex items-end gap-[2px] h-3 opacity-80">
-                      <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-full animate-pulse [animation-duration:0.4s]' : 'h-1'}`}></div>
-                      <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-2/3 animate-pulse [animation-duration:0.6s]' : 'h-1'}`}></div>
-                      <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-4/5 animate-pulse [animation-duration:0.5s]' : 'h-1'}`}></div>
-                      <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-1/2 animate-pulse [animation-duration:0.7s]' : 'h-1'}`}></div>
-                      <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-3/4 animate-pulse [animation-duration:0.3s]' : 'h-1'}`}></div>
-                      <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-full animate-pulse [animation-duration:0.5s]' : 'h-1'}`}></div>
-                      <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-2/3 animate-pulse [animation-duration:0.4s]' : 'h-1'}`}></div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-center gap-1.5 shrink-0 ml-1">
-                    <div className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-white/70 text-pink-600 border border-white/90 shadow-sm backdrop-blur-md -mb-0.5">
-                      {formatTime(currentTime)}
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <button 
-                        onClick={handlePrevTrack} 
-                        className="w-7 h-7 rounded-full bg-white/40 text-slate-500 hover:text-pink-600 hover:bg-white/70 flex items-center justify-center transition-all shadow-sm"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
-                      </button>
-                      <button 
-                        onClick={toggleMusic}
-                        className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-pink-600 text-white flex items-center justify-center shadow-lg shadow-pink-500/30 hover:scale-105 hover:shadow-pink-500/40 transition-all cursor-pointer border border-pink-400/50"
-                      >
-                        {isPlayingMusic ? (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
-                        ) : (
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><polygon points="5 3 19 12 5 21 5 3" strokeLinejoin="round" strokeWidth="2"></polygon></svg>
-                        )}
-                      </button>
-                      <button 
-                        onClick={handleNextTrack} 
-                        className="w-7 h-7 rounded-full bg-white/40 text-slate-500 hover:text-pink-600 hover:bg-white/70 flex items-center justify-center transition-all shadow-sm"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Scrubber slidable */}
-                <div className="flex flex-col gap-1 w-full select-none">
-                  <input 
-                    type="range"
-                    min="0"
-                    max={duration || 100}
-                    step="0.1"
-                    value={currentTime}
-                    onChange={handleSeekChange}
-                    className="w-full h-1.5 appearance-none cursor-pointer rounded-full outline-none hover:h-2 transition-all shadow-inner bg-white/40"
-                    style={{
-                      background: `linear-gradient(to right, #ec4899 ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.6) ${(currentTime / (duration || 1)) * 100}%)`
-                    }}
+                  <audio
+                    ref={audioRef}
+                    src={currentTrack.src}
+                    onEnded={() => setIsPlayingMusic(false)}
+                    preload="metadata"
+                    onTimeUpdate={handleTimeUpdate}
+                    onLoadedMetadata={handleLoadedMetadata}
                   />
-                  <div className="flex justify-between w-full">
-                     {/* The styles for the thumb (the dragger) need to be handled carefully in React, but tailwind accent color works in modern browsers */}
-                     <style>{`
+
+                  {/* Top Section: Vinyl, Info, and Play Button */}
+                  <div className="flex items-center gap-4">
+                    <div className={`relative shrink-0 w-14 h-14 rounded-full bg-slate-800 border-[3px] border-slate-900 shadow-lg flex items-center justify-center overflow-hidden ${isPlayingMusic ? 'animate-spin [animation-duration:3s]' : 'transition-transform duration-500'}`}>
+                      {/* Vinyl Grooves */}
+                      <div className="absolute inset-0 rounded-full border border-slate-700 m-[3px]"></div>
+                      <div className="absolute inset-0 rounded-full border border-slate-700 m-[8px]"></div>
+
+                      {/* Spinning Arrow Indicator */}
+                      <div className="absolute top-1 right-2 text-pink-400 drop-shadow-md rotate-45 z-0">
+                        <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L22 20H2L12 2Z" /></svg>
+                      </div>
+
+                      {/* Glare Reflection */}
+                      <div className="absolute top-0 right-1/2 w-4 h-1 bg-white/20 rounded-full blur-[1px]"></div>
+
+                      {/* Center Label */}
+                      <div className="relative w-4 h-4 bg-pink-500 rounded-full border border-pink-400 shadow-inner flex items-center justify-center z-10">
+                        <div className="w-1 h-1 bg-white/80 rounded-full shadow-sm"></div>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 min-w-0 flex flex-col relative">
+
+                      <h4 className="text-[9px] uppercase tracking-widest text-pink-600 font-mono font-black truncate leading-none mb-1 flex items-center gap-1">
+                        {isPlayingMusic ? (
+                          <><span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span> Playing</>
+                        ) : 'Paused'}
+                      </h4>
+                      <select
+                        value={currentTrackIndex}
+                        onChange={(e) => {
+                          setCurrentTrackIndex(Number(e.target.value));
+                          if (!isPlayingMusic) {
+                            setIsPlayingMusic(true);
+                            window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'interactive' } }));
+                          }
+                        }}
+                        className="text-[13px] font-bold text-slate-800 bg-transparent outline-none cursor-pointer appearance-none truncate leading-tight mb-1 hover:text-pink-600 transition-colors w-full"
+                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ec4899' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', paddingRight: '16px' }}
+                      >
+                        {PLAYLIST.map((t, i) => (
+                          <option key={i} value={i} className="text-slate-800">{t.title}</option>
+                        ))}
+                      </select>
+
+                      {/* Music visuals according to beat */}
+                      <div className="flex items-end gap-[2px] h-3 opacity-80">
+                        <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-full animate-pulse [animation-duration:0.4s]' : 'h-1'}`}></div>
+                        <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-2/3 animate-pulse [animation-duration:0.6s]' : 'h-1'}`}></div>
+                        <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-4/5 animate-pulse [animation-duration:0.5s]' : 'h-1'}`}></div>
+                        <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-1/2 animate-pulse [animation-duration:0.7s]' : 'h-1'}`}></div>
+                        <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-3/4 animate-pulse [animation-duration:0.3s]' : 'h-1'}`}></div>
+                        <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-full animate-pulse [animation-duration:0.5s]' : 'h-1'}`}></div>
+                        <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-2/3 animate-pulse [animation-duration:0.4s]' : 'h-1'}`}></div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center gap-1.5 shrink-0 ml-1">
+                      <div className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-white/70 text-pink-600 border border-white/90 shadow-sm backdrop-blur-md -mb-0.5">
+                        {formatTime(currentTime)}
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={handlePrevTrack}
+                          className="w-7 h-7 rounded-full bg-white/40 text-slate-500 hover:text-pink-600 hover:bg-white/70 flex items-center justify-center transition-all shadow-sm"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                        </button>
+                        <button
+                          onClick={toggleMusic}
+                          className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-pink-600 text-white flex items-center justify-center shadow-lg shadow-pink-500/30 hover:scale-105 hover:shadow-pink-500/40 transition-all cursor-pointer border border-pink-400/50"
+                        >
+                          {isPlayingMusic ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><polygon points="5 3 19 12 5 21 5 3" strokeLinejoin="round" strokeWidth="2"></polygon></svg>
+                          )}
+                        </button>
+                        <button
+                          onClick={handleNextTrack}
+                          className="w-7 h-7 rounded-full bg-white/40 text-slate-500 hover:text-pink-600 hover:bg-white/70 flex items-center justify-center transition-all shadow-sm"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Scrubber slidable */}
+                  <div className="flex flex-col gap-1 w-full select-none">
+                    <input
+                      type="range"
+                      min="0"
+                      max={duration || 100}
+                      step="0.1"
+                      value={currentTime}
+                      onChange={handleSeekChange}
+                      className="w-full h-1.5 appearance-none cursor-pointer rounded-full outline-none hover:h-2 transition-all shadow-inner bg-white/40"
+                      style={{
+                        background: `linear-gradient(to right, #ec4899 ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.6) ${(currentTime / (duration || 1)) * 100}%)`
+                      }}
+                    />
+                    <div className="flex justify-between w-full">
+                      {/* The styles for the thumb (the dragger) need to be handled carefully in React, but tailwind accent color works in modern browsers */}
+                      <style>{`
                        input[type=range]::-webkit-slider-thumb {
                          -webkit-appearance: none;
                          height: 10px;
@@ -653,17 +653,17 @@ export default function InteractiveEditor() {
                          cursor: pointer;
                        }
                      `}</style>
+                    </div>
                   </div>
                 </div>
+
+                {/* Call to action when paused (below the player) */}
+                {!isPlayingMusic && (
+                  <div className="text-[10px] font-bold text-pink-600 animate-bounce tracking-wider drop-shadow-sm bg-white/40 px-4 py-1.5 rounded-full border border-pink-200 shadow-sm backdrop-blur-md">
+                    Click play to listen! 🎵
+                  </div>
+                )}
               </div>
-              
-              {/* Call to action when paused (below the player) */}
-              {!isPlayingMusic && (
-                <div className="text-[10px] font-bold text-pink-600 animate-bounce tracking-wider drop-shadow-sm bg-white/40 px-4 py-1.5 rounded-full border border-pink-200 shadow-sm backdrop-blur-md">
-                  Click play to listen! 🎵
-                </div>
-              )}
-            </div>
             </div>
           </div>
 

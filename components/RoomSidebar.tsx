@@ -94,7 +94,14 @@ export default function RoomSidebar({ users, currentUserSocketId, typingUsers, r
         {users.length === 0 ? (
           <div className="text-center text-xs text-slate-400 font-medium py-4">No active users.</div>
         ) : (
-          users.map((user) => {
+          Array.from(
+            users.reduce((map, u) => {
+              if (!map.has(u.username) || u.socketId === currentUserSocketId) {
+                map.set(u.username, u);
+              }
+              return map;
+            }, new Map<string, User>()).values()
+          ).map((user) => {
             const isMe = user.socketId === currentUserSocketId;
             const isTyping = typingUsers[user.username];
 

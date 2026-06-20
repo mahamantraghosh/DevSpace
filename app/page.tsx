@@ -142,17 +142,17 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-5 justify-center items-center pt-4">
+            <div className="flex flex-col sm:flex-row gap-5 justify-center items-center pt-8 pb-12">
               <Link
-                href="/signup"
+                href={user ? "/dashboard" : "/signup"}
                 className="inline-flex h-14 items-center justify-center rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 px-10 text-base font-black text-white shadow-2xl shadow-pink-500/40 hover:shadow-pink-500/60 hover:scale-105 transition-all w-full sm:w-auto cursor-pointer border border-pink-400/50"
               >
-                Create Workspace <ArrowRight className="ml-2 h-5 w-5 drop-shadow-sm" />
+                {user ? "Go to Dashboard" : "Create Workspace"} <ArrowRight className="ml-2 h-5 w-5 drop-shadow-sm" />
               </Link>
             </div>
 
             {/* Interactive Demo */}
-            <div className="pt-24 pb-8 w-full max-w-6xl mx-auto relative z-20">
+            <div className="mt-8 pt-12 pb-8 w-full max-w-6xl mx-auto relative z-20">
               <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-sm font-mono text-pink-700 dark:text-pink-400 font-black bg-white/50 dark:bg-slate-900/50 backdrop-blur-lg px-6 py-2 rounded-full border border-white/70 dark:border-slate-600/70 shadow-lg inline-flex items-center gap-2 drop-shadow-sm">
                 <Globe className="w-4 h-4 animate-spin-slow drop-shadow-sm" />
                 INTERACTIVE PREVIEW
