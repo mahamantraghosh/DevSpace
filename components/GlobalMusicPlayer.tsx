@@ -99,7 +99,7 @@ export default function GlobalMusicPlayer() {
       className="fixed bottom-4 left-4 z-50 flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-2 pr-4 rounded-full shadow-lg shadow-pink-500/10 cursor-pointer hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-300 group" 
       onClick={togglePlay}
     >
-      <audio ref={audioRef} src={currentTrack.src} onEnded={handleTrackEnd} preload="auto" />
+      <audio ref={audioRef} src={currentTrack.src} onEnded={handleTrackEnd} preload="auto" autoPlay />
       
       {/* Mini spinning vinyl disc */}
       <div className={`relative shrink-0 w-10 h-10 rounded-full bg-slate-800 border-[2px] border-slate-900 shadow-md flex items-center justify-center overflow-hidden ${isPlaying ? 'animate-spin [animation-duration:3s]' : 'transition-transform duration-500'}`}>
