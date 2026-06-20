@@ -7,6 +7,7 @@ import CursorTrail from "@/components/CursorTrail";
 import ScrollBackground from "@/components/ScrollBackground";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
+import GlobalMusicPlayer from "@/components/GlobalMusicPlayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,13 +55,14 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col text-foreground relative">
+      <body className="min-h-full flex flex-col text-foreground relative" suppressHydrationWarning>
         <ThemeProvider>
           <ScrollBackground />
           <AuthProvider>
             <Toaster position="top-center" />
             <ThemeToggle />
             <CursorTrail />
+            <GlobalMusicPlayer />
             <div className="relative z-0 flex flex-col min-h-full flex-1">
               {children}
             </div>

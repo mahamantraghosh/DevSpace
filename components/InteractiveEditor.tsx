@@ -21,6 +21,10 @@ interface ChatMessage {
   time: string;
   avatarColor: string;
 }
+const PLAYLIST = [
+  { title: "Tum Se Hi", src: "/tum-se-hi.mp3" },
+  { title: "Kingdom Dance", src: "/kingdom-dance.mp3" }
+];
 
 export default function InteractiveEditor() {
   const [activeTab, setActiveTab] = useState<"html" | "css" | "js">("html");
@@ -51,19 +55,90 @@ export default function InteractiveEditor() {
   ]);
 
   const [simulatedCodeLine, setSimulatedCodeLine] = useState("");
-  const [timeString, setTimeString] = useState("");
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  // Live ticking clock for preview
+  // Audio Player State
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(1); // Default to Kingdom Dance
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  
+  const currentTrack = PLAYLIST[currentTrackIndex];
+
+  const handleNextTrack = () => {
+    setCurrentTrackIndex((prev) => (prev + 1) % PLAYLIST.length);
+    if (!isPlayingMusic) {
+      setIsPlayingMusic(true);
+      window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'interactive' } }));
+    }
+  };
+
+  const handlePrevTrack = () => {
+    setCurrentTrackIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
+    if (!isPlayingMusic) {
+      setIsPlayingMusic(true);
+      window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'interactive' } }));
+    }
+  };
+
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTimeString(now.toLocaleTimeString());
+    if (isPlayingMusic && audioRef.current) {
+      audioRef.current.play().catch(e => console.log(e));
+    }
+  }, [currentTrackIndex, isPlayingMusic]);
+
+  useEffect(() => {
+    const handlePauseAudio = (e: any) => {
+      if (e.detail?.source !== 'interactive' && audioRef.current) {
+        audioRef.current.pause();
+        setIsPlayingMusic(false);
+      }
     };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
+    window.addEventListener('pause-audio', handlePauseAudio);
+    return () => window.removeEventListener('pause-audio', handlePauseAudio);
   }, []);
+
+  const toggleMusic = () => {
+    if (audioRef.current) {
+      if (isPlayingMusic) {
+        audioRef.current.pause();
+      } else {
+        window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'interactive' } }));
+        audioRef.current.play().catch(e => console.log("Audio play prevented:", e));
+      }
+      setIsPlayingMusic(!isPlayingMusic);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = parseFloat(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const m = Math.floor(time / 60);
+    const s = Math.floor(time % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
+
+
 
   // Scroll to bottom of chat
   useEffect(() => {
@@ -75,7 +150,7 @@ export default function InteractiveEditor() {
   // Simulate remote typing changes over time
   useEffect(() => {
     let index = 0;
-    const codeToAdd = "  console.log('Clock rendered successfully!');";
+    const codeToAdd = "  console.log('Audio visualizer synced!');";
 
     const typingTimeout = setTimeout(() => {
       setIsTyping(true);
@@ -91,7 +166,7 @@ export default function InteractiveEditor() {
           setTerminalLines((prev) => [
             ...prev,
             `[MantraCode Compiler] app.js compiled successfully.`,
-            `[MantraCode Runtime] console.log: "Clock rendered successfully!"`
+            `[MantraCode Runtime] console.log: "Audio visualizer synced!"`
           ]);
         }
       }, 80);
@@ -149,12 +224,17 @@ export default function InteractiveEditor() {
       { text: '  <link rel="stylesheet" href="styles.css">', color: 'text-yellow-600' },
       { text: '</head>', color: 'text-pink-600' },
       { text: '<body>', color: 'text-pink-600' },
-      { text: '  <div class="card">', color: 'text-pink-600' },
-      { text: '    <div class="glow"></div>', color: 'text-pink-600' },
-      { text: '    <div class="content">', color: 'text-pink-600' },
-      { text: '      <h3>MahaSpace Clock</h3>', color: 'text-blue-900 font-bold' },
-      { text: '      <div id="timer" class="time">00:00:00</div>', color: 'text-yellow-600' },
-      { text: '      <p>Real-Time Collaboration</p>', color: 'text-blue-900 font-bold' },
+      { text: '  <div class="player-card">', color: 'text-pink-600' },
+      { text: '    <div class="vinyl-record spinning">', color: 'text-pink-600' },
+      { text: '      <div class="center-label"></div>', color: 'text-pink-600' },
+      { text: '    </div>', color: 'text-pink-600' },
+      { text: '    <div class="track-info">', color: 'text-pink-600' },
+      { text: '      <h4>Now Playing</h4>', color: 'text-blue-900 font-bold' },
+      { text: '      <h2>Lofi Code Beats</h2>', color: 'text-blue-900 font-bold' },
+      { text: '      <div class="audio-waves">', color: 'text-pink-600' },
+      { text: '        <div class="bar"></div>', color: 'text-pink-600' },
+      { text: '        <!-- more bars -->', color: 'text-slate-400' },
+      { text: '      </div>', color: 'text-pink-600' },
       { text: '    </div>', color: 'text-pink-600' },
       { text: '  </div>', color: 'text-pink-600' },
       { text: '  <script src="app.js"></script>', color: 'text-yellow-600' },
@@ -162,42 +242,45 @@ export default function InteractiveEditor() {
       { text: '</html>', color: 'text-pink-600' }
     ],
     css: [
-      { text: 'body {', color: 'text-pink-600' },
-      { text: '  background: transparent;', color: 'text-yellow-600' },
-      { text: '  color: #2d3748;', color: 'text-yellow-600' },
+      { text: '.player-card {', color: 'text-pink-600' },
       { text: '  display: flex;', color: 'text-yellow-600' },
-      { text: '  justify-content: center;', color: 'text-yellow-600' },
       { text: '  align-items: center;', color: 'text-yellow-600' },
-      { text: '}', color: 'text-pink-600' },
-      { text: '', color: '' },
-      { text: '.card {', color: 'text-pink-600' },
-      { text: '  position: relative;', color: 'text-yellow-600' },
+      { text: '  gap: 16px;', color: 'text-yellow-600' },
       { text: '  background: rgba(255, 255, 255, 0.4);', color: 'text-yellow-600' },
-      { text: '  border: 1px solid rgba(255, 255, 255, 0.6);', color: 'text-yellow-600' },
-      { text: '  backdrop-filter: blur(12px);', color: 'text-yellow-600' },
+      { text: '  padding: 16px;', color: 'text-yellow-600' },
       { text: '  border-radius: 16px;', color: 'text-yellow-600' },
-      { text: '  padding: 24px;', color: 'text-yellow-600' },
-      { text: '  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);', color: 'text-yellow-600' },
+      { text: '  backdrop-filter: blur(12px);', color: 'text-yellow-600' },
       { text: '}', color: 'text-pink-600' },
       { text: '', color: '' },
-      { text: '.time {', color: 'text-pink-600' },
-      { text: '  font-size: 2rem;', color: 'text-yellow-600' },
-      { text: '  font-weight: 700;', color: 'text-yellow-600' },
-      { text: '  color: #ec4899;', color: 'text-yellow-600' },
+      { text: '.vinyl-record {', color: 'text-pink-600' },
+      { text: '  width: 48px;', color: 'text-yellow-600' },
+      { text: '  height: 48px;', color: 'text-yellow-600' },
+      { text: '  background: #1e293b;', color: 'text-yellow-600' },
+      { text: '  border-radius: 50%;', color: 'text-yellow-600' },
+      { text: '}', color: 'text-pink-600' },
+      { text: '', color: '' },
+      { text: '.spinning {', color: 'text-pink-600' },
+      { text: '  animation: spin 3s linear infinite;', color: 'text-yellow-600' },
+      { text: '}', color: 'text-pink-600' },
+      { text: '', color: '' },
+      { text: '.bar {', color: 'text-pink-600' },
+      { text: '  width: 4px;', color: 'text-yellow-600' },
+      { text: '  background: #ec4899;', color: 'text-yellow-600' },
+      { text: '  animation: pulse 0.5s ease-in-out infinite alternate;', color: 'text-yellow-600' },
       { text: '}', color: 'text-pink-600' }
     ],
     js: [
-      { text: 'function startClock() {', color: 'text-yellow-600 font-bold' },
-      { text: '  const timeEl = document.getElementById("timer");', color: 'text-pink-600' },
-      { text: '  if (!timeEl) return;', color: 'text-pink-600' },
-      { text: '  ', color: '' },
-      { text: '  setInterval(() => {', color: 'text-yellow-600 font-bold' },
-      { text: '    const now = new Date();', color: 'text-pink-600' },
-      { text: '    const timeStr = now.toLocaleTimeString();', color: 'text-pink-600' },
-      { text: '    timeEl.innerText = timeStr;', color: 'text-pink-600' },
-      { text: '  }, 1000);', color: 'text-yellow-600 font-bold' },
+      { text: 'const bars = document.querySelectorAll(".bar");', color: 'text-pink-600' },
+      { text: '', color: '' },
+      { text: 'function syncVisualizer() {', color: 'text-yellow-600 font-bold' },
+      { text: '  bars.forEach(bar => {', color: 'text-pink-600' },
+      { text: '    const duration = Math.random() * 0.5 + 0.3;', color: 'text-pink-600' },
+      { text: '    const height = Math.floor(Math.random() * 100);', color: 'text-pink-600' },
+      { text: '    bar.style.animationDuration = `${duration}s`;', color: 'text-pink-600' },
+      { text: '    bar.style.height = `${height}%`;', color: 'text-pink-600' },
+      { text: '  });', color: 'text-pink-600' },
+      { text: '  requestAnimationFrame(syncVisualizer);', color: 'text-pink-600' },
       { text: '}', color: 'text-yellow-600 font-bold' },
-      { text: 'startClock();', color: 'text-pink-600' },
       { text: '', color: '' }
     ]
   };
@@ -215,7 +298,7 @@ export default function InteractiveEditor() {
           <div className="h-4 w-px bg-white/50"></div>
           <div className="flex items-center gap-1.5 text-xs text-slate-700 font-mono font-bold">
             <span className="text-pink-600">workspace /</span>
-            <span>clock-widget</span>
+            <span>music-player</span>
           </div>
         </div>
 
@@ -349,7 +432,7 @@ export default function InteractiveEditor() {
           {/* Active file indicator / breadcrumb for desktop */}
           <div className="hidden md:flex items-center justify-between px-4 py-2 bg-white/30 border-b border-white/30 text-xs font-mono text-slate-600 font-bold">
             <div className="flex items-center gap-1">
-              <span>clock-widget</span>
+              <span>music-player</span>
               <ChevronRight className="w-3 h-3 text-slate-400" />
               <span className={activeTab === 'html' ? 'text-orange-600' : activeTab === 'css' ? 'text-blue-600' : 'text-yellow-600'}>
                 {activeTab === "html" ? "index.html" : activeTab === "css" ? "styles.css" : "app.js"}
@@ -364,12 +447,20 @@ export default function InteractiveEditor() {
           {/* Code display area */}
           <div className="flex-1 p-4 overflow-y-auto font-mono text-xs sm:text-sm leading-relaxed select-text custom-scroll bg-white/10 text-slate-800">
             {codeSnippets[activeTab].map((line, idx) => (
-              <div key={idx} className="flex hover:bg-white/40 px-1 rounded transition-colors group">
-                <span className="w-8 text-slate-400 text-right select-none pr-3 block border-r border-white/40 mr-3 font-semibold">
+              <div key={idx} className="flex hover:bg-white/40 px-1 rounded transition-colors group relative">
+                <span className="w-8 text-slate-400 text-right select-none pr-3 block border-r border-white/40 mr-3 font-semibold shrink-0">
                   {idx + 1}
                 </span>
-                <span className={`${line.color} whitespace-pre font-medium`}>
+                <span className={`${line.color} whitespace-pre font-medium relative`}>
                   {line.text}
+                  {activeTab !== "js" && idx === codeSnippets[activeTab].length - 1 && (
+                    <span className="absolute top-0 right-[-4px] translate-x-full flex items-center pointer-events-none select-none z-10">
+                      <span className="h-4 w-0.5 bg-yellow-500 animate-pulse"></span>
+                      <span className="bg-yellow-400 text-slate-900 text-[9px] font-sans px-1 py-0.2 rounded-sm shadow-md whitespace-nowrap ml-0.5 select-none font-bold border border-yellow-500/50">
+                        Krishna
+                      </span>
+                    </span>
+                  )}
                 </span>
               </div>
             ))}
@@ -390,18 +481,7 @@ export default function InteractiveEditor() {
               </div>
             )}
 
-            {/* Render a visual cursor animation in HTML/CSS tab as well */}
-            {activeTab === "html" && (
-              <div className="relative">
-                {/* Floating remote cursor for Krishna */}
-                <span className="absolute top-[160px] left-[180px] flex items-center pointer-events-none select-none">
-                  <span className="h-4 w-0.5 bg-yellow-500 animate-pulse"></span>
-                  <span className="bg-yellow-400 text-slate-900 text-[9px] font-sans px-1 py-0.2 rounded-sm shadow-md whitespace-nowrap ml-0.5 select-none font-bold border border-yellow-500/50">
-                    Krishna
-                  </span>
-                </span>
-              </div>
-            )}
+
           </div>
 
           {/* Mini Terminal (bottom of code editor) */}
@@ -443,18 +523,147 @@ export default function InteractiveEditor() {
               {/* Radial gradient background behind clock */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] bg-gradient-to-tr from-pink-300/40 to-yellow-300/40 rounded-full blur-2xl"></div>
 
-              {/* Actual Clock Widget Output */}
-              <div className="relative group bg-white/40 border border-white/60 hover:border-pink-300/60 rounded-2xl p-4 text-center max-w-[200px] w-full shadow-xl shadow-pink-500/10 backdrop-blur-xl transition-all duration-300">
-                <h4 className="text-[10px] uppercase tracking-wider text-slate-600 font-mono font-black">MahaSpace Clock</h4>
-                <div className="text-xl font-bold font-mono text-pink-600 my-1 drop-shadow-sm">
-                  {timeString || "12:34:56 PM"}
+              {/* Music Player Wrapper */}
+              <div className="relative flex flex-col items-center gap-4 z-10">
+                {/* Music Player Widget Output */}
+                <div 
+                  className="relative group bg-white/50 border border-white/60 hover:border-pink-300/80 rounded-2xl p-4 w-[280px] shadow-2xl shadow-pink-500/10 backdrop-blur-2xl transition-all duration-300 flex flex-col gap-4"
+                >
+                <audio 
+                  ref={audioRef} 
+                  src={currentTrack.src} 
+                  onEnded={() => setIsPlayingMusic(false)}
+                  preload="metadata"
+                  onTimeUpdate={handleTimeUpdate}
+                  onLoadedMetadata={handleLoadedMetadata}
+                />
+                
+                {/* Top Section: Vinyl, Info, and Play Button */}
+                <div className="flex items-center gap-4">
+                  <div className={`relative shrink-0 w-14 h-14 rounded-full bg-slate-800 border-[3px] border-slate-900 shadow-lg flex items-center justify-center overflow-hidden ${isPlayingMusic ? 'animate-spin [animation-duration:3s]' : 'transition-transform duration-500'}`}>
+                    {/* Vinyl Grooves */}
+                    <div className="absolute inset-0 rounded-full border border-slate-700 m-[3px]"></div>
+                    <div className="absolute inset-0 rounded-full border border-slate-700 m-[8px]"></div>
+                    
+                    {/* Spinning Arrow Indicator */}
+                    <div className="absolute top-1 right-2 text-pink-400 drop-shadow-md rotate-45 z-0">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L22 20H2L12 2Z"/></svg>
+                    </div>
+                    
+                    {/* Glare Reflection */}
+                    <div className="absolute top-0 right-1/2 w-4 h-1 bg-white/20 rounded-full blur-[1px]"></div>
+
+                    {/* Center Label */}
+                    <div className="relative w-4 h-4 bg-pink-500 rounded-full border border-pink-400 shadow-inner flex items-center justify-center z-10">
+                      <div className="w-1 h-1 bg-white/80 rounded-full shadow-sm"></div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0 flex flex-col relative">
+
+                    <h4 className="text-[9px] uppercase tracking-widest text-pink-600 font-mono font-black truncate leading-none mb-1 flex items-center gap-1">
+                      {isPlayingMusic ? (
+                        <><span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span> Playing</>
+                      ) : 'Paused'}
+                    </h4>
+                    <select 
+                      value={currentTrackIndex}
+                      onChange={(e) => {
+                        setCurrentTrackIndex(Number(e.target.value));
+                        if (!isPlayingMusic) {
+                          setIsPlayingMusic(true);
+                          window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'interactive' } }));
+                        }
+                      }}
+                      className="text-[13px] font-bold text-slate-800 bg-transparent outline-none cursor-pointer appearance-none truncate leading-tight mb-1 hover:text-pink-600 transition-colors w-full"
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ec4899' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', paddingRight: '16px' }}
+                    >
+                      {PLAYLIST.map((t, i) => (
+                        <option key={i} value={i} className="text-slate-800">{t.title}</option>
+                      ))}
+                    </select>
+                    
+                    {/* Music visuals according to beat */}
+                    <div className="flex items-end gap-[2px] h-3 opacity-80">
+                      <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-full animate-pulse [animation-duration:0.4s]' : 'h-1'}`}></div>
+                      <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-2/3 animate-pulse [animation-duration:0.6s]' : 'h-1'}`}></div>
+                      <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-4/5 animate-pulse [animation-duration:0.5s]' : 'h-1'}`}></div>
+                      <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-1/2 animate-pulse [animation-duration:0.7s]' : 'h-1'}`}></div>
+                      <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-3/4 animate-pulse [animation-duration:0.3s]' : 'h-1'}`}></div>
+                      <div className={`w-1 bg-yellow-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-full animate-pulse [animation-duration:0.5s]' : 'h-1'}`}></div>
+                      <div className={`w-1 bg-pink-500 rounded-t-sm transition-all ${isPlayingMusic ? 'h-2/3 animate-pulse [animation-duration:0.4s]' : 'h-1'}`}></div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-1.5 shrink-0 ml-1">
+                    <div className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold bg-white/70 text-pink-600 border border-white/90 shadow-sm backdrop-blur-md -mb-0.5">
+                      {formatTime(currentTime)}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button 
+                        onClick={handlePrevTrack} 
+                        className="w-7 h-7 rounded-full bg-white/40 text-slate-500 hover:text-pink-600 hover:bg-white/70 flex items-center justify-center transition-all shadow-sm"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                      </button>
+                      <button 
+                        onClick={toggleMusic}
+                        className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-pink-600 text-white flex items-center justify-center shadow-lg shadow-pink-500/30 hover:scale-105 hover:shadow-pink-500/40 transition-all cursor-pointer border border-pink-400/50"
+                      >
+                        {isPlayingMusic ? (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><polygon points="5 3 19 12 5 21 5 3" strokeLinejoin="round" strokeWidth="2"></polygon></svg>
+                        )}
+                      </button>
+                      <button 
+                        onClick={handleNextTrack} 
+                        className="w-7 h-7 rounded-full bg-white/40 text-slate-500 hover:text-pink-600 hover:bg-white/70 flex items-center justify-center transition-all shadow-sm"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-[9px] text-slate-500 font-sans font-bold">Real-Time Collaboration</p>
-                <div className="mt-2 flex items-center justify-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
-                  <span className="text-[8px] text-emerald-700 uppercase font-mono tracking-wider font-bold">Live Sandbox</span>
+
+                {/* Scrubber slidable */}
+                <div className="flex flex-col gap-1 w-full select-none">
+                  <input 
+                    type="range"
+                    min="0"
+                    max={duration || 100}
+                    step="0.1"
+                    value={currentTime}
+                    onChange={handleSeekChange}
+                    className="w-full h-1.5 appearance-none cursor-pointer rounded-full outline-none hover:h-2 transition-all shadow-inner bg-white/40"
+                    style={{
+                      background: `linear-gradient(to right, #ec4899 ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.6) ${(currentTime / (duration || 1)) * 100}%)`
+                    }}
+                  />
+                  <div className="flex justify-between w-full">
+                     {/* The styles for the thumb (the dragger) need to be handled carefully in React, but tailwind accent color works in modern browsers */}
+                     <style>{`
+                       input[type=range]::-webkit-slider-thumb {
+                         -webkit-appearance: none;
+                         height: 10px;
+                         width: 10px;
+                         border-radius: 50%;
+                         background: #ec4899;
+                         box-shadow: 0 0 4px rgba(236,72,153,0.5);
+                         cursor: pointer;
+                       }
+                     `}</style>
+                  </div>
                 </div>
               </div>
+              
+              {/* Call to action when paused (below the player) */}
+              {!isPlayingMusic && (
+                <div className="text-[10px] font-bold text-pink-600 animate-bounce tracking-wider drop-shadow-sm bg-white/40 px-4 py-1.5 rounded-full border border-pink-200 shadow-sm backdrop-blur-md">
+                  Click play to listen! 🎵
+                </div>
+              )}
+            </div>
             </div>
           </div>
 

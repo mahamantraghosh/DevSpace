@@ -137,8 +137,9 @@ export default function LivePreview({ files = {} }: LivePreviewProps) {
     <div className="flex flex-col h-full bg-[#fffafa]">
       {/* Live Preview Tabs/Actions */}
       <div className="flex items-center justify-between border-b border-pink-100 bg-white px-4 py-1.5 h-[45px] shrink-0">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-          <Eye size={14} className="text-pink-500" /> Live View
+        <div className="flex items-center gap-1.5 text-xs font-mono">
+          <Play size={14} className="text-emerald-600 fill-emerald-600/30" /> 
+          <span className="text-pink-700 font-bold">Live Preview</span>
         </div>
         <div className="flex gap-2">
           {/* Toggle Developer Console */}
