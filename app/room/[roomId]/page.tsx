@@ -77,6 +77,15 @@ export default function RoomPage() {
   const isDraggingRight = useRef(false);
 
   const [isDragging, setIsDragging] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"sidebar" | "editor" | "preview">("editor");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize(); // Set initially
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -465,7 +474,7 @@ export default function RoomPage() {
       <div className="flex-1 flex overflow-hidden">
         
         {/* Primary Left Sidebar */}
-        <div style={{ width: leftWidth }} className="shrink-0 flex flex-col bg-white/60 backdrop-blur-lg z-10 relative">
+        <div style={{ width: isMobile ? '100%' : leftWidth }} className={`shrink-0 flex-col bg-white/60 backdrop-blur-lg z-10 relative ${mobileTab === 'sidebar' ? 'flex w-full' : 'hidden md:flex'}`}>
           <div className="flex border-b border-pink-300/80 p-2 gap-1 bg-white/40 shadow-sm">
             <button 
               onClick={() => setActiveTabSidebar("files")}
@@ -515,7 +524,7 @@ export default function RoomPage() {
 
         {/* Resizer Left */}
         <div 
-          className="w-1.5 bg-pink-400/40 hover:bg-pink-500 active:bg-pink-600 cursor-col-resize shrink-0 transition-colors relative z-20 shadow-sm"
+          className="hidden md:block w-1.5 bg-pink-400/40 hover:bg-pink-500 active:bg-pink-600 cursor-col-resize shrink-0 transition-colors relative z-20 shadow-sm"
           onMouseDown={() => {
             isDraggingLeft.current = true;
             setIsDragging(true);
@@ -524,7 +533,7 @@ export default function RoomPage() {
         />
 
         {/* Center: Editor */}
-        <div className={`flex-1 flex flex-col min-w-0 bg-white/30 backdrop-blur-md relative ${isDragging ? 'pointer-events-none' : ''}`}>
+        <div className={`flex-1 flex-col min-w-0 bg-white/30 backdrop-blur-md relative ${isDragging ? 'pointer-events-none' : ''} ${mobileTab === 'editor' ? 'flex w-full' : 'hidden md:flex'}`}>
           {/* Editor Header / Tabs */}
           <div className="flex bg-white/50 border-b border-pink-400/70 overflow-x-auto custom-scroll shadow-sm">
             {Object.keys(files).map((filename) => (
@@ -558,7 +567,7 @@ export default function RoomPage() {
 
         {/* Resizer Right */}
         <div 
-          className="w-1.5 bg-pink-400/40 hover:bg-pink-500 active:bg-pink-600 cursor-col-resize shrink-0 transition-colors relative z-20 shadow-sm"
+          className="hidden md:block w-1.5 bg-pink-400/40 hover:bg-pink-500 active:bg-pink-600 cursor-col-resize shrink-0 transition-colors relative z-20 shadow-sm"
           onMouseDown={() => {
             isDraggingRight.current = true;
             setIsDragging(true);
@@ -567,7 +576,7 @@ export default function RoomPage() {
         />
 
         {/* Right: Live Preview */}
-        <aside style={{ width: rightWidth }} className={`flex flex-col bg-white/40 backdrop-blur-md shrink-0 relative ${isDragging ? 'pointer-events-none' : ''}`}>
+        <aside style={{ width: isMobile ? '100%' : rightWidth }} className={`flex-col bg-white/40 backdrop-blur-md shrink-0 relative ${isDragging ? 'pointer-events-none' : ''} ${mobileTab === 'preview' ? 'flex w-full' : 'hidden md:flex'}`}>
           <div className="p-2 border-b border-pink-200/60 bg-white/50 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-2">Live Preview</span>
           </div>
@@ -575,6 +584,13 @@ export default function RoomPage() {
             <LivePreview files={files} />
           </div>
         </aside>
+      </div>
+
+      {/* Mobile Navigation */}
+      <div className="md:hidden flex bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border-t border-pink-200/50 dark:border-slate-700/50 shrink-0">
+        <button onClick={() => setMobileTab("sidebar")} className={`flex-1 py-3.5 text-center text-[10px] uppercase tracking-wider font-bold transition ${mobileTab === 'sidebar' ? 'text-pink-600 bg-white/60 dark:bg-slate-800/60 shadow-inner' : 'text-slate-500 hover:text-pink-500'}`}>Menu</button>
+        <button onClick={() => setMobileTab("editor")} className={`flex-1 py-3.5 text-center text-[10px] uppercase tracking-wider font-bold transition border-l border-r border-pink-200/50 dark:border-slate-700/50 ${mobileTab === 'editor' ? 'text-pink-600 bg-white/60 dark:bg-slate-800/60 shadow-inner' : 'text-slate-500 hover:text-pink-500'}`}>Editor</button>
+        <button onClick={() => setMobileTab("preview")} className={`flex-1 py-3.5 text-center text-[10px] uppercase tracking-wider font-bold transition ${mobileTab === 'preview' ? 'text-pink-600 bg-white/60 dark:bg-slate-800/60 shadow-inner' : 'text-slate-500 hover:text-pink-500'}`}>Preview</button>
       </div>
     </div>
   );
