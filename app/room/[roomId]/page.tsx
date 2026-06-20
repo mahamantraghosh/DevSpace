@@ -12,6 +12,7 @@ import RoomSidebar from "@/components/RoomSidebar";
 import FileExplorer from "@/components/FileExplorer";
 import InteractiveWorkspaceBg from "@/components/InteractiveWorkspaceBg";
 import NavbarThemeToggle from "@/components/NavbarThemeToggle";
+import SiteLogo from "@/components/SiteLogo";
 import confetti from "canvas-confetti";
 import { useAuth } from "@/context/AuthContext";
 
@@ -379,14 +380,7 @@ export default function RoomPage() {
       <InteractiveWorkspaceBg />
       <header className="flex items-center justify-between px-6 py-3 border-b border-pink-300/60 dark:border-slate-700/60 bg-pink-200/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-md shadow-pink-100/50 dark:shadow-slate-900/50 shrink-0 relative z-20">
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-white/30 dark:bg-slate-800/80 border border-white/50 dark:border-slate-500/70 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-sm backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 text-pink-700 drop-shadow-sm" />
-            </div>
-            <span className="font-black text-xl tracking-tight text-black dark:text-white group-hover:text-pink-700 transition-colors drop-shadow-md">
-              Mantra<span className="text-pink-600">Code</span>
-            </span>
-          </Link>
+          <SiteLogo />
           <span className="h-5 w-px bg-pink-200 dark:bg-slate-700" />
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Workspace:</span>

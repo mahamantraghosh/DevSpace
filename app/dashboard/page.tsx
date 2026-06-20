@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Loader2, Sparkles, LogOut, Copy, Check, Users, Lock, Unlock, Zap, Settings, Trash, Pencil, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import NavbarThemeToggle from "@/components/NavbarThemeToggle";
+import SiteLogo from "@/components/SiteLogo";
 import toast from "react-hot-toast";
 
 interface Room {
@@ -203,14 +204,7 @@ export default function DashboardPage() {
       {/* Dashboard Header */}
       <header className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border-b border-white/50 dark:border-slate-600/60 sticky top-0 z-10 shadow-[0_4px_30px_rgba(0,0,0,0.05)] shadow-inner">
         <div className="container mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-white/30 dark:bg-slate-800/80 border border-white/50 dark:border-slate-500/70 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-sm backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 text-pink-700 drop-shadow-sm" />
-            </div>
-            <span className="font-black text-xl tracking-tight text-black dark:text-white group-hover:text-pink-700 transition-colors drop-shadow-md">
-              Mantra<span className="text-pink-600">Code</span>
-            </span>
-          </Link>
+          <SiteLogo />
 
           <div className="flex items-center gap-4">
             <NavbarThemeToggle />

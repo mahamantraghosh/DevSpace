@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import NavbarThemeToggle from "@/components/NavbarThemeToggle";
+import SiteLogo from "@/components/SiteLogo";
 import {
   Users,
   MessageSquare,
@@ -66,14 +67,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 w-full border-b border-white/50 dark:border-slate-600/60 bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl transition-all shadow-[0_4px_30px_rgba(0,0,0,0.05)] shadow-inner">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
 
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-white/30 dark:bg-slate-800/80 border border-white/50 dark:border-slate-500/70 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-sm backdrop-blur-sm">
-              <Sparkles className="w-4 h-4 text-pink-700 drop-shadow-sm" />
-            </div>
-            <span className="font-black text-xl tracking-tight text-black dark:text-white group-hover:text-pink-700 transition-colors drop-shadow-md">
-              Mantra<span className="text-pink-600">Code</span>
-            </span>
-          </Link>
+          <SiteLogo />
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-black text-slate-800 dark:text-slate-200">
             <Link href="#features" className="hover:text-pink-600 transition-colors py-1 drop-shadow-md">Features</Link>
