@@ -140,11 +140,11 @@ export default function InteractiveWorkspaceBg() {
         ctx.beginPath();
         ctx.arc(mw.x, mw.y, mw.radius, 0, Math.PI * 2);
         if (isDark) {
-          ctx.strokeStyle = `rgba(147, 51, 234, ${mw.life * 0.85})`; // Deep saturated purple
+          ctx.strokeStyle = `rgba(147, 51, 234, ${Math.min(1, mw.life * 1.0)})`; // Deep saturated purple
         } else {
-          ctx.strokeStyle = `rgba(190, 24, 93, ${Math.min(1, mw.life * 1.2)})`; // Pink-700, much darker and more opaque
+          ctx.strokeStyle = `rgba(190, 24, 93, ${Math.min(1, mw.life * 1.5)})`; // Pink-700, much darker and more opaque
         }
-        ctx.lineWidth = 3.5;
+        ctx.lineWidth = 5.0; // Slightly thicker
         ctx.stroke();
       }
 
@@ -162,17 +162,18 @@ export default function InteractiveWorkspaceBg() {
         ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
         
         let colorStr = "";
+        const bumpAlpha = Math.min(1, r.alpha * 1.3); // Boost visibility
         if (isDark) {
-          const colors = [`rgba(168, 85, 247, ${r.alpha})`, `rgba(59, 130, 246, ${r.alpha})`, `rgba(236, 72, 153, ${r.alpha})`];
+          const colors = [`rgba(168, 85, 247, ${bumpAlpha})`, `rgba(59, 130, 246, ${bumpAlpha})`, `rgba(236, 72, 153, ${bumpAlpha})`];
           colorStr = colors[r.colorIndex % 3];
         } else {
           // Darker, highly saturated pinks/reds to contrast with the pink background
-          const colors = [`rgba(190, 24, 93, ${r.alpha})`, `rgba(157, 23, 77, ${r.alpha})`, `rgba(225, 29, 72, ${r.alpha})`];
+          const colors = [`rgba(190, 24, 93, ${bumpAlpha})`, `rgba(157, 23, 77, ${bumpAlpha})`, `rgba(225, 29, 72, ${bumpAlpha})`];
           colorStr = colors[r.colorIndex % 3];
         }
         
         ctx.strokeStyle = colorStr;
-        ctx.lineWidth = 3 + (2 - (r.colorIndex % 3)); // Vary thickness
+        ctx.lineWidth = 4.5 + (2 - (r.colorIndex % 3)); // Slightly thicker lines
         ctx.stroke();
       }
 
