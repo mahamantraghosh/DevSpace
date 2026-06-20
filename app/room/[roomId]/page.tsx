@@ -377,7 +377,7 @@ export default function RoomPage() {
   return (
     <div className="flex flex-col h-screen bg-transparent text-foreground overflow-hidden font-sans relative z-10">
       <InteractiveWorkspaceBg />
-      <header className="flex items-center justify-between px-6 py-3 border-b border-pink-300/60 bg-pink-200/70 backdrop-blur-2xl shadow-md shadow-pink-100/50 shrink-0 relative z-20">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-pink-300/60 dark:border-slate-700/60 bg-pink-200/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-md shadow-pink-100/50 dark:shadow-slate-900/50 shrink-0 relative z-20">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="w-8 h-8 rounded-lg bg-white/30 dark:bg-slate-800/80 border border-white/50 dark:border-slate-500/70 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 shadow-sm backdrop-blur-sm">
@@ -387,18 +387,18 @@ export default function RoomPage() {
               Mantra<span className="text-pink-600">Code</span>
             </span>
           </Link>
-          <span className="h-5 w-px bg-pink-200" />
+          <span className="h-5 w-px bg-pink-200 dark:bg-slate-700" />
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Workspace:</span>
-            <code className="text-sm font-mono text-pink-600 bg-pink-50 px-2 py-0.5 rounded border border-pink-100">{roomId}</code>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Workspace:</span>
+            <code className="text-sm font-mono text-pink-600 dark:text-pink-400 bg-pink-50 dark:bg-slate-800 px-2 py-0.5 rounded border border-pink-100 dark:border-slate-700">{roomId}</code>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <NavbarThemeToggle />
-          <button onClick={handleCopyLink} className="px-3 py-1.5 text-xs font-bold border border-pink-200 bg-pink-50 rounded-lg text-pink-600 hover:bg-pink-100 transition cursor-pointer flex items-center gap-1.5 shadow-sm">
+          <button onClick={handleCopyLink} className="px-3 py-1.5 text-xs font-bold border border-pink-200 dark:border-slate-600 bg-pink-50 dark:bg-slate-800 rounded-lg text-pink-600 dark:text-pink-400 hover:bg-pink-100 dark:hover:bg-slate-700 transition cursor-pointer flex items-center gap-1.5 shadow-sm">
             {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />} {copied ? "Copied!" : "Copy Link"}
           </button>
-          <button onClick={() => router.push("/dashboard")} className="px-3 py-1.5 text-xs font-bold bg-white border border-slate-200 text-slate-500 hover:text-pink-600 hover:border-pink-200 rounded-lg transition cursor-pointer flex items-center gap-1.5">
+          <button onClick={() => router.push("/dashboard")} className="px-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-300 hover:text-pink-600 dark:hover:text-pink-400 hover:border-pink-200 dark:hover:border-slate-500 rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-sm">
             <LogOut size={14} /> Exit
           </button>
         </div>
