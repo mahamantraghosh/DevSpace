@@ -64,12 +64,12 @@ export default function ScrollBackground() {
   // --- PROGRESS ---
   let progress = rawProgress;
   if (isMobile) {
-    if (rawProgress < 0.4) {
+    if (rawProgress < 0.3) {
       progress = 0;
-    } else if (rawProgress > 0.6) {
+    } else if (rawProgress > 0.5) {
       progress = 1;
     } else {
-      progress = (rawProgress - 0.4) / 0.2;
+      progress = (rawProgress - 0.3) / 0.2;
     }
   }
 
@@ -78,7 +78,7 @@ export default function ScrollBackground() {
   let parallax2 = 0;
   let bgPos1 = 0;
   let bgPos2 = 0;
-  const imageTop = isMobile ? "17vh" : "5vh";
+  let imageTop = isMobile ? "17vh" : "5vh";
   let imageTop2 = imageTop;
 
   if (isMobile) {
@@ -107,14 +107,19 @@ export default function ScrollBackground() {
     const parallaxFactor = 0.3;
     parallax1 = currentScroll * parallaxFactor;
     parallax2 = (currentScroll - currentMaxScroll) * parallaxFactor;
+    
+    if (theme === "dark") {
+      // Bring both dark theme images slightly upward on desktop as requested
+      imageTop = "-15vh";
+      imageTop2 = "-15vh"; 
+    }
   }
 
   // --- SEAMLESS TEXTURES ---
-  // In the original d0a5226 commit, AI textures were used universally across both themes and platforms
-  const topPattern1 = theme === "dark" ? "url('/pattern_dark1_top.png')" : "url('/pattern_light1_top.png')";
+  const topPattern1 = theme === "dark" ? "url('/pattern_dark1_top_v3.png')" : "url('/pattern_light1_top.png')";
   const topPattern2 = theme === "dark" ? "url('/pattern_dark2_top.png')" : "url('/pattern_light2_top.png')";
 
-  const botPattern1 = theme === "dark" ? "url('/pattern_dark1_bot.png')" : "url('/cloud_pattern_light_1.png')";
+  const botPattern1 = theme === "dark" ? "url('/pattern_dark1_bot_v3.png')" : "url('/cloud_pattern_light_1.png')";
   const botPattern2 = theme === "dark" ? "url('/pattern_dark2_bot.png')" : "url('/pattern_light2_bot.png')";
 
   // --- MASKING ---
@@ -193,7 +198,7 @@ export default function ScrollBackground() {
                 <img
                   src={images[1]}
                   alt=""
-                  className="w-full h-auto"
+                  className="w-full h-auto block"
                   style={{
                     WebkitMaskImage: maskStyle,
                     maskImage: maskStyle
