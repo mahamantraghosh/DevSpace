@@ -46,7 +46,7 @@ export default function ScrollBackground() {
   if (!mounted) return null;
 
   const images = theme === "dark"
-    ? ["dark_bg1.png", "https://creator.nightcafe.studio/jobs/UMfJp2JtSK1zmB5C9bv5/UMfJp2JtSK1zmB5C9bv5--0--vuoem.jpg"]
+    ? ["/dark_bg1.png", "https://creator.nightcafe.studio/jobs/UMfJp2JtSK1zmB5C9bv5/UMfJp2JtSK1zmB5C9bv5--0--vuoem.jpg"]
     : [
       "https://thumbs.dreamstime.com/b/radha-krishna-vector-illustration-holding-hands-against-pink-purple-gradient-cloud-background-depicted-wears-422980769.jpg",
       "https://paintwaint.in/cdn/shop/files/Background-2025-04-03T144407.378.png"
@@ -57,10 +57,33 @@ export default function ScrollBackground() {
   const currentMaxScroll = isVirtual ? 1000 : maxScroll;
 
   const isAuthPage = pathname === "/login" || pathname === "/signup";
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   const progress = Math.min(Math.max(currentScroll / currentMaxScroll, 0), 1);
-  const parallax1 = currentScroll * 0.4;
-  const parallax2 = (currentScroll - currentMaxScroll) * 0.4;
+  
+  // Restore a slow parallax slide. 
+  // Image 1 slides up from 0. Image 2 slides up from the bottom, so it is perfectly in place at max scroll.
+  // The factor is kept small (0.1) on mobile so the image doesn't slide completely off screen.
+  const parallaxFactor = isMobile ? 0.1 : 0.3;
+  const parallax1 = currentScroll * parallaxFactor;
+  const parallax2 = (currentScroll - currentMaxScroll) * parallaxFactor; 
+
+  // Lower the image significantly so the nature-float animation (which pulls up by 10vh) 
+  // doesn't cut the face out of the top of the screen.
+  const imageTop = isMobile ? "17vh" : "5vh";
+
+  // Custom AI generated seamless texture patterns to beautifully extend the top edges
+  const topPattern1 = theme === "dark" ? "url('/pattern_dark1_top.png')" : "url('/pattern_light1_top.png')";
+  const topPattern2 = theme === "dark" ? "url('/pattern_dark2_top.png')" : "url('/pattern_light2_top.png')";
+
+  // Custom AI generated seamless texture patterns to beautifully extend the bottom edges
+  const botPattern1 = theme === "dark" ? "url('/pattern_dark1_bot.png')" : "url('/cloud_pattern_light_1.png')";
+  const botPattern2 = theme === "dark" ? "url('/pattern_dark2_bot.png')" : "url('/pattern_light2_bot.png')";
+
+  // Fade the top and bottom of the original images using CSS masking so they dissolve perfectly into the AI textures
+  const maskStyle = isMobile 
+    ? "linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)"
+    : "linear-gradient(to bottom, black 0%, black 85%, transparent 100%)";
 
   return (
     <>
@@ -74,22 +97,38 @@ export default function ScrollBackground() {
           }`}
       ></div>
 
-      <div className="fixed inset-0 z-[-2] pointer-events-none bg-[#f9a8d4] dark:bg-slate-950">
+      <div className="fixed inset-0 z-[-2] pointer-events-none">
         {/* Parallax wrapper 1 */}
         <div
           className="absolute top-0 left-0 w-full h-[200vh]"
           style={{ transform: isAuthPage ? undefined : `translateY(-${parallax1}px)` }}
         >
-          <div
-            className="absolute top-0 left-0 w-full h-full transition-opacity duration-300 animate-nature-float"
-            style={{
-              backgroundImage: `url('${images[0]}')`,
-              backgroundSize: "100% auto",
-              backgroundPosition: "top center",
-              backgroundRepeat: "no-repeat",
-              opacity: isAuthPage ? 1 : 1 - progress,
-            }}
-          />
+          <div className="absolute top-0 left-0 w-full h-full transition-opacity duration-300 animate-nature-float" style={{ opacity: isAuthPage ? 1 : 1 - progress }}>
+            {/* Base Background: Generated Seamless Bottom Texture */}
+            <div className="absolute inset-0" style={{ backgroundImage: botPattern1, backgroundSize: "100% auto", backgroundRepeat: "repeat" }}></div>
+            
+            {/* Top Fade Background: Generated Seamless Top Texture fading downwards */}
+            <div className="absolute top-0 left-0 w-full h-[60vh]" style={{ 
+              backgroundImage: topPattern1, 
+              backgroundSize: "100% auto", 
+              backgroundRepeat: "repeat",
+              WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
+              maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)"
+            }}></div>
+            
+            {/* Image */}
+            <div className="absolute left-0 w-full pointer-events-none" style={{ top: imageTop }}>
+              <img 
+                src={images[0]} 
+                alt="" 
+                className="w-full h-auto"
+                style={{
+                  WebkitMaskImage: maskStyle,
+                  maskImage: maskStyle
+                }}
+              />
+            </div>
+          </div>
         </div>
         {!isAuthPage && (
           <div
@@ -97,16 +136,32 @@ export default function ScrollBackground() {
             style={{ transform: `translateY(-${parallax2}px)` }}
           >
             {/* Parallax wrapper 2 */}
-            <div
-              className="absolute top-0 left-0 w-full h-full transition-opacity duration-300 animate-nature-float"
-              style={{
-                backgroundImage: `url('${images[1]}')`,
-                backgroundSize: "100% auto",
-                backgroundPosition: "top center",
-                backgroundRepeat: "no-repeat",
-                opacity: progress,
-              }}
-            />
+            <div className="absolute top-0 left-0 w-full h-full transition-opacity duration-300 animate-nature-float" style={{ opacity: progress }}>
+              {/* Base Background: Generated Seamless Bottom Texture */}
+              <div className="absolute inset-0" style={{ backgroundImage: botPattern2, backgroundSize: "100% auto", backgroundRepeat: "repeat" }}></div>
+              
+              {/* Top Fade Background: Generated Seamless Top Texture fading downwards */}
+              <div className="absolute top-0 left-0 w-full h-[60vh]" style={{ 
+                backgroundImage: topPattern2, 
+                backgroundSize: "100% auto", 
+                backgroundRepeat: "repeat",
+                WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
+                maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)"
+              }}></div>
+              
+              {/* Image */}
+              <div className="absolute left-0 w-full pointer-events-none" style={{ top: imageTop }}>
+                <img 
+                  src={images[1]} 
+                  alt="" 
+                  className="w-full h-auto"
+                  style={{
+                    WebkitMaskImage: maskStyle,
+                    maskImage: maskStyle
+                  }}
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>

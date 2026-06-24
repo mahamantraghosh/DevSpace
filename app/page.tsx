@@ -16,7 +16,8 @@ import {
   Globe,
   GitBranch,
   Activity,
-  Bot
+  Bot,
+  LogOut
 } from "lucide-react";
 import InteractiveEditor from "@/components/InteractiveEditor";
 import TechStack from "@/components/TechStack";
@@ -77,40 +78,42 @@ export default function Home() {
             <Link href="#tech-stack" className="hover:text-pink-600 transition-colors py-1 drop-shadow-md">Tech Stack</Link>
           </nav>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-2 sm:gap-5">
             <NavbarThemeToggle />
 
             {user ? (
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-400 flex items-center justify-center text-white font-black text-xs shadow-lg shadow-pink-500/30 border border-white/60">
+              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-3">
+                <div className="hidden sm:flex w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-yellow-400 items-center justify-center text-white font-black text-xs shadow-lg shadow-pink-500/30 border border-white/60">
                   {user.username.slice(0, 2).toUpperCase()}
                 </div>
                 <Link
                   href="/dashboard"
-                  className="h-9 inline-flex items-center rounded-xl bg-pink-500/90 backdrop-blur-md hover:bg-pink-600 px-5 text-sm font-black text-white transition-all shadow-lg shadow-pink-500/30 border border-pink-400/50"
+                  className="h-7 sm:h-9 inline-flex items-center rounded-xl bg-pink-500/90 backdrop-blur-md hover:bg-pink-600 px-3 sm:px-5 text-[10px] sm:text-sm font-black text-white transition-all shadow-lg shadow-pink-500/30 border border-pink-400/50"
                 >
                   Dashboard
                 </Link>
                 <button
                   onClick={logout}
-                  className="h-9 border border-white/60 dark:border-slate-600/60 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md px-4 rounded-xl text-sm font-black text-slate-800 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-slate-800/70 hover:text-pink-600 transition-colors cursor-pointer shadow-md drop-shadow-sm"
+                  className="h-7 sm:h-9 border border-white/60 dark:border-slate-600/60 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md px-3 sm:px-4 rounded-xl text-[10px] sm:text-sm font-black text-slate-800 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-slate-800/70 hover:text-pink-600 transition-colors cursor-pointer shadow-md drop-shadow-sm flex items-center justify-center gap-1.5"
+                  title="Logout"
                 >
-                  Logout
+                  <span>Logout</span>
+                  <LogOut className="hidden sm:block w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2 ml-2">
+              <div className="flex items-center gap-1.5 sm:gap-2 ml-1 sm:ml-2">
                 <Link
                   href="/login"
-                  className="h-9 inline-flex items-center rounded-xl border border-white/60 dark:border-slate-600/60 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md px-5 text-sm font-black text-slate-900 dark:text-slate-100 hover:bg-white/60 dark:hover:bg-slate-800/70 hover:text-pink-700 transition-all shadow-md drop-shadow-sm"
+                  className="h-8 sm:h-9 inline-flex items-center rounded-xl border border-white/60 dark:border-slate-600/60 bg-white/40 dark:bg-slate-800/50 backdrop-blur-md px-2.5 sm:px-5 text-[11px] sm:text-sm font-black text-slate-900 dark:text-slate-100 hover:bg-white/60 dark:hover:bg-slate-800/70 hover:text-pink-700 transition-all shadow-md drop-shadow-sm"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="h-9 inline-flex items-center rounded-xl bg-pink-500/90 backdrop-blur-md hover:bg-pink-600 px-5 text-sm font-black text-white transition-all shadow-xl shadow-pink-500/30 border border-pink-400/50"
+                  className="h-8 sm:h-9 inline-flex items-center rounded-xl bg-pink-500/90 backdrop-blur-md hover:bg-pink-600 px-2.5 sm:px-5 text-[11px] sm:text-sm font-black text-white transition-all shadow-xl shadow-pink-500/30 border border-pink-400/50"
                 >
-                  Start Coding
+                  Start
                 </Link>
               </div>
             )}
@@ -124,10 +127,10 @@ export default function Home() {
         <section className="w-full py-20 lg:py-32 flex flex-col items-center justify-center text-center px-4 md:px-6 relative z-10">
           <div className="w-full min-w-0 max-w-[1000px] space-y-8">
 
-            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/60 dark:border-slate-600/60 bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg shadow-lg text-sm font-black text-slate-900 dark:text-slate-100 mx-auto select-none">
-              <Zap className="w-4 h-4 text-yellow-500 fill-yellow-500 drop-shadow-sm" />
+            <div className="inline-flex flex-wrap justify-center items-center gap-2 px-5 py-2 rounded-full border border-white/60 dark:border-slate-600/60 bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg shadow-lg text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 mx-auto select-none max-w-full text-center">
+              <Zap className="w-4 h-4 shrink-0 text-yellow-500 fill-yellow-500 drop-shadow-sm" />
               <span className="drop-shadow-sm">Engineered with love by Mahamantra Ghosh</span>
-              <div className="w-2 h-2 rounded-full bg-pink-500 animate-ping ml-1"></div>
+              <div className="w-2 h-2 shrink-0 rounded-full bg-pink-500 animate-ping ml-1"></div>
             </div>
 
             <div className="space-y-6">

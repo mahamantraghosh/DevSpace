@@ -206,25 +206,27 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
           <SiteLogo />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <NavbarThemeToggle />
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-base font-black text-slate-950 dark:text-white drop-shadow-sm">{user.username || "User"}</p>
-                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{user.email}</p>
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="text-right hidden sm:block">
+                  <p className="text-base font-black text-slate-950 dark:text-white drop-shadow-sm">{user.username || "User"}</p>
+                  <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{user.email}</p>
+                </div>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-pink-400 to-yellow-400 flex items-center justify-center text-white font-bold text-[10px] sm:text-xs uppercase shadow-sm">
+                  {(user.username || user.email || "U").slice(0, 2)}
+                </div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-400 to-yellow-400 flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm">
-                {(user.username || user.email || "U").slice(0, 2)}
-              </div>
+              <div className="hidden sm:block w-px h-6 bg-pink-100 dark:bg-slate-700"></div>
+              <button
+                onClick={logout}
+                className="text-slate-700 dark:text-slate-300 hover:text-pink-700 dark:hover:text-pink-400 transition-colors p-1 sm:p-2"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
             </div>
-            <div className="w-px h-6 bg-pink-100"></div>
-            <button
-              onClick={logout}
-              className="text-slate-700 dark:text-slate-300 hover:text-pink-700 dark:hover:text-pink-400 transition-colors p-2"
-              title="Sign Out"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </header>

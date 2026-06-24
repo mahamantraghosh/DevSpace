@@ -12,7 +12,23 @@ export default function GlobalMusicPlayer() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   
+  // Dragging state
+  const [position, setPosition] = useState({ x: 16, y: 16 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0, hasMoved: false });
+  const [mounted, setMounted] = useState(false);
+  
   const currentTrack = PLAYLIST[currentTrackIndex];
+
+  useEffect(() => {
+    setMounted(true);
+    const saved = localStorage.getItem("devspace-music-pos");
+    if (saved) {
+      try {
+        setPosition(JSON.parse(saved));
+      } catch (e) {}
+    }
+  }, []);
 
   // Auto-play next track when current one ends
   const handleTrackEnd = () => {
@@ -70,34 +86,86 @@ export default function GlobalMusicPlayer() {
     return () => window.removeEventListener('pause-audio', handlePauseAudio);
   }, []);
 
-  const togglePlay = () => {
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return; // Only left click
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setIsDragging(true);
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: position.x,
+      initialY: position.y,
+      hasMoved: false
+    };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+      dragRef.current.hasMoved = true;
+    }
+    
+    // x is from left, y is from bottom
+    let newX = dragRef.current.initialX + dx;
+    let newY = dragRef.current.initialY - dy;
+    
+    // Keep it on screen roughly
+    newX = Math.max(0, Math.min(newX, window.innerWidth - 180));
+    newY = Math.max(0, Math.min(newY, window.innerHeight - 60));
+    
+    setPosition({ x: newX, y: newY });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    
+    if (dragRef.current.hasMoved) {
+      localStorage.setItem("devspace-music-pos", JSON.stringify(position));
+    }
+  };
+
+  const handleContainerClick = () => {
+    if (dragRef.current.hasMoved) return; // Don't toggle if we were dragging
     if (!audioRef.current) return;
     
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      // Dispatch event to pause other players before we start playing
       window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'global' } }));
       audioRef.current.play();
       setIsPlaying(true);
     }
   };
 
-  const handleNext = (e: React.MouseEvent) => {
+  const handleNext = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
     setCurrentTrackIndex((prev) => (prev + 1) % PLAYLIST.length);
   };
 
-  const handlePrev = (e: React.MouseEvent) => {
+  const handlePrev = (e: React.MouseEvent | React.PointerEvent) => {
     e.stopPropagation();
     setCurrentTrackIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
   };
 
+  // Prevent hydration mismatch with position
+  if (!mounted) return null;
+
   return (
     <div 
-      className="fixed bottom-4 left-4 z-50 flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-2 pr-4 rounded-full shadow-lg shadow-pink-500/10 cursor-pointer hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-300 group" 
-      onClick={togglePlay}
+      className={`fixed z-50 flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-2 pr-4 rounded-full shadow-lg shadow-pink-500/10 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-colors duration-300 group select-none touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-105'}`}
+      style={{ left: `${position.x}px`, bottom: `${position.y}px`, transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s' }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      onClick={handleContainerClick}
     >
       <audio ref={audioRef} src={currentTrack.src} onEnded={handleTrackEnd} preload="auto" autoPlay />
       
@@ -119,6 +187,7 @@ export default function GlobalMusicPlayer() {
         <select 
           value={currentTrackIndex}
           onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
           onChange={(e) => {
             setCurrentTrackIndex(Number(e.target.value));
             if (!isPlaying) {
@@ -151,14 +220,16 @@ export default function GlobalMusicPlayer() {
       {/* Track Navigation */}
       <div className="flex items-center gap-1 border-l border-slate-300/50 dark:border-slate-600/50 pl-2 ml-1">
         <button 
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={handlePrev}
-          className="p-1 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all"
+          className="p-1 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
         </button>
         <button 
+          onPointerDown={(e) => e.stopPropagation()}
           onClick={handleNext}
-          className="p-1 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all"
+          className="p-1 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
         </button>
