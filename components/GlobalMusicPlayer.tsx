@@ -7,10 +7,23 @@ const PLAYLIST = [
   { title: "Kingdom Dance", src: "/kingdom-dance.mp3" }
 ];
 
+// SINGLETON AUDIO INSTANCE
+// This sits entirely outside the React lifecycle. It mathematically guarantees
+// that no matter how many times Next.js hot-reloads or Strict Mode unmounts/remounts
+// the component, there is only EVER one audio engine running in the background.
+const getGlobalAudio = () => {
+  if (typeof window === 'undefined') return null;
+  if (!(window as any).__devspace_global_audio) {
+    const audio = new Audio();
+    audio.preload = "auto";
+    (window as any).__devspace_global_audio = audio;
+  }
+  return (window as any).__devspace_global_audio as HTMLAudioElement;
+};
+
 export default function GlobalMusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
   
   // Dragging state
   const [position, setPosition] = useState({ x: 16, y: 16 });
@@ -30,38 +43,33 @@ export default function GlobalMusicPlayer() {
     }
   }, []);
 
-  // Auto-play next track when current one ends
-  const handleTrackEnd = () => {
-    setCurrentTrackIndex((prev) => (prev + 1) % PLAYLIST.length);
-  };
-
-  // Play immediately when track changes if already playing
+  // Main Audio Engine Controller
   useEffect(() => {
-    if (isPlaying && audioRef.current) {
-      audioRef.current.play().catch(() => {});
-    }
-  }, [currentTrackIndex, isPlaying]);
+    const audio = getGlobalAudio();
+    if (!audio) return;
 
-  // Handle auto-play and event listeners
-  useEffect(() => {
-    // Attempt auto-play
-    if (audioRef.current) {
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch((err) => {
-        console.log("Autoplay blocked by browser. User interaction needed.", err);
-        setIsPlaying(false);
-        
+    // Sync React state with the native audio engine
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => setCurrentTrackIndex((prev) => (prev + 1) % PLAYLIST.length);
+
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
+    audio.addEventListener('ended', handleEnded);
+
+    // If the audio source has changed, update it and play if it was already playing
+    if (audio.src !== window.location.origin + currentTrack.src) {
+      audio.src = currentTrack.src;
+      audio.load();
+      
+      // Auto-play attempt on first load or track change
+      audio.play().catch((err) => {
         // Autoplay workaround: wait for the first user interaction anywhere on the page
         const handleFirstInteraction = () => {
-          if (audioRef.current && audioRef.current.paused) {
-            audioRef.current.play().then(() => {
-              setIsPlaying(true);
-              // Pause any other players that might be running
+          if (audio.paused) {
+            audio.play().then(() => {
               window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'global' } }));
-            }).catch(() => {
-              // Silently catch if the browser still rejects it
-            });
+            }).catch(() => {});
           }
           document.removeEventListener('click', handleFirstInteraction);
           document.removeEventListener('keydown', handleFirstInteraction);
@@ -75,16 +83,20 @@ export default function GlobalMusicPlayer() {
     }
 
     // Listen for other audio players starting (like the interactive preview)
-    const handlePauseAudio = (e: any) => {
-      if (e.detail?.source !== 'global' && audioRef.current) {
-        audioRef.current.pause();
-        setIsPlaying(false);
+    const handleGlobalPauseEvent = (e: any) => {
+      if (e.detail?.source !== 'global') {
+        audio.pause();
       }
     };
+    window.addEventListener('pause-audio', handleGlobalPauseEvent);
 
-    window.addEventListener('pause-audio', handlePauseAudio);
-    return () => window.removeEventListener('pause-audio', handlePauseAudio);
-  }, []);
+    return () => {
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('ended', handleEnded);
+      window.removeEventListener('pause-audio', handleGlobalPauseEvent);
+    };
+  }, [currentTrackIndex]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return; // Only left click
@@ -109,13 +121,16 @@ export default function GlobalMusicPlayer() {
       dragRef.current.hasMoved = true;
     }
     
-    // x is from left, y is from bottom
+    // Calculate new position relative to bottom-left
     let newX = dragRef.current.initialX + dx;
     let newY = dragRef.current.initialY - dy;
     
-    // Keep it on screen roughly
-    newX = Math.max(0, Math.min(newX, window.innerWidth - 180));
-    newY = Math.max(0, Math.min(newY, window.innerHeight - 60));
+    // Bounds checking
+    const maxX = window.innerWidth - 60;
+    const maxY = window.innerHeight - 60;
+    
+    newX = Math.max(0, Math.min(newX, maxX));
+    newY = Math.max(0, Math.min(newY, maxY));
     
     setPosition({ x: newX, y: newY });
   };
@@ -130,17 +145,17 @@ export default function GlobalMusicPlayer() {
     }
   };
 
-  const handleContainerClick = () => {
-    if (dragRef.current.hasMoved) return; // Don't toggle if we were dragging
-    if (!audioRef.current) return;
+  const handleContainerClick = (e: React.MouseEvent) => {
+    if (dragRef.current.hasMoved) return; 
     
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'global' } }));
-      audioRef.current.play();
-      setIsPlaying(true);
+    const audio = getGlobalAudio();
+    if (audio) {
+      if (isPlaying) {
+        audio.pause();
+      } else {
+        window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'global' } }));
+        audio.play().catch(() => {});
+      }
     }
   };
 
@@ -154,7 +169,6 @@ export default function GlobalMusicPlayer() {
     setCurrentTrackIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
   };
 
-  // Prevent hydration mismatch with position
   if (!mounted) return null;
 
   return (
@@ -167,8 +181,6 @@ export default function GlobalMusicPlayer() {
       onPointerCancel={handlePointerUp}
       onClick={handleContainerClick}
     >
-      <audio ref={audioRef} src={currentTrack.src} onEnded={handleTrackEnd} preload="auto" autoPlay />
-      
       {/* Mini spinning vinyl disc */}
       <div className={`relative shrink-0 w-10 h-10 rounded-full bg-slate-800 border-[2px] border-slate-900 shadow-md flex items-center justify-center overflow-hidden ${isPlaying ? 'animate-spin [animation-duration:3s]' : 'transition-transform duration-500'}`}>
         <div className="absolute inset-0 rounded-full border border-slate-700 m-[2px]"></div>
@@ -190,9 +202,10 @@ export default function GlobalMusicPlayer() {
           onPointerDown={(e) => e.stopPropagation()}
           onChange={(e) => {
             setCurrentTrackIndex(Number(e.target.value));
-            if (!isPlaying) {
+            const audio = getGlobalAudio();
+            if (audio && audio.paused) {
               window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'global' } }));
-              setIsPlaying(true);
+              audio.play().catch(() => {});
             }
           }}
           className="text-[12px] font-bold text-slate-800 dark:text-slate-200 bg-transparent outline-none cursor-pointer appearance-none truncate leading-tight group-hover:text-pink-600 transition-colors -ml-1 pl-1"
