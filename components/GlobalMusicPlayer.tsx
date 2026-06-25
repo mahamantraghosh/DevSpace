@@ -66,20 +66,31 @@ export default function GlobalMusicPlayer() {
       // Auto-play attempt on first load or track change
       audio.play().catch((err) => {
         // Autoplay workaround: wait for the first user interaction anywhere on the page
+        const removeListeners = () => {
+          document.removeEventListener('click', handleFirstInteraction);
+          document.removeEventListener('touchstart', handleFirstInteraction);
+          document.removeEventListener('touchend', handleFirstInteraction);
+          document.removeEventListener('keydown', handleFirstInteraction);
+          document.removeEventListener('pointerdown', handleFirstInteraction);
+        };
+
         const handleFirstInteraction = () => {
           if (audio.paused) {
             audio.play().then(() => {
               window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'global' } }));
-            }).catch(() => {});
+              removeListeners();
+            }).catch(() => {
+              // Browser blocked this specific event type (e.g. touchstart). 
+              // Do not remove listeners; let the next event (e.g. click) try again!
+            });
+          } else {
+            removeListeners();
           }
-          document.removeEventListener('click', handleFirstInteraction);
-          document.removeEventListener('touchstart', handleFirstInteraction);
-          document.removeEventListener('keydown', handleFirstInteraction);
-          document.removeEventListener('pointerdown', handleFirstInteraction);
         };
         
         document.addEventListener('click', handleFirstInteraction);
         document.addEventListener('touchstart', handleFirstInteraction);
+        document.addEventListener('touchend', handleFirstInteraction);
         document.addEventListener('keydown', handleFirstInteraction);
         document.addEventListener('pointerdown', handleFirstInteraction);
       });
