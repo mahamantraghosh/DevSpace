@@ -18,7 +18,7 @@ const techs = [
 
 export default function TechStack() {
   return (
-    <section className="py-24 relative overflow-hidden border-t border-slate-200/50 dark:border-slate-800/50" id="tech-stack">
+    <section className="dark py-24 relative overflow-hidden border-t border-slate-200/50 dark:border-slate-800/50" id="tech-stack">
       {/* Background glow elements */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-64 bg-pink-500/10 dark:bg-pink-500/5 blur-[100px] rounded-full -z-10 pointer-events-none"></div>
       

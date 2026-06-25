@@ -181,6 +181,7 @@ export default function RoomPage() {
         throw new Error("Pusher configuration missing. Check environment variables.");
       }
 
+      console.log("PUSHER ENV:", pusherKey, pusherCluster);
       pusher = new Pusher(pusherKey, {
         cluster: pusherCluster,
         authEndpoint: "/api/pusher/auth",
@@ -450,7 +451,7 @@ export default function RoomPage() {
   return (
     <div className="flex flex-col h-screen bg-transparent text-foreground overflow-hidden font-sans relative z-10">
       <InteractiveWorkspaceBg />
-      <header className="flex items-center justify-between px-6 py-3 border-b border-pink-300/60 dark:border-slate-700/60 bg-pink-200/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-md shadow-pink-100/50 dark:shadow-slate-900/50 shrink-0 relative z-20">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-pink-400/80 dark:border-slate-600/90 bg-pink-300/80 dark:bg-slate-900/90 backdrop-blur-2xl shadow-lg shadow-pink-200/50 dark:shadow-slate-900/80 shrink-0 relative z-20">
         <div className="flex items-center gap-3">
           <SiteLogo />
           <span className="h-5 w-px bg-pink-200 dark:bg-slate-700" />

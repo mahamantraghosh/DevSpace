@@ -1,6 +1,5 @@
 @import "tailwindcss";
-
-@variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:is(.dark *));
 :root {
   --background: #fbcfe8; /* Pink-200 (Very noticeable pink tint) */
   --foreground: #2d3748; /* Dark text for readability */

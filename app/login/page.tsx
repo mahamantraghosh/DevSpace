@@ -45,7 +45,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-transparent px-4 relative z-10">
+    <div className="dark min-h-screen flex items-center justify-center bg-transparent px-4 relative z-10">
       <div className="w-full max-w-md">
         <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border border-white/40 dark:border-slate-700/50 rounded-3xl p-8 shadow-[0_8px_30px_rgba(236,72,153,0.1)] dark:shadow-[0_8px_30px_rgba(168,85,247,0.1)] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-white/10 dark:from-slate-800/40 dark:to-slate-900/10 pointer-events-none" />

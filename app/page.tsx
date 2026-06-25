@@ -60,14 +60,14 @@ export default function Home() {
     <div className="flex flex-col min-h-screen text-slate-900 dark:text-slate-50 selection:bg-pink-500/30 selection:text-pink-900 font-sans">
 
       {/* Live Global Ticker Banner */}
-      <div className="w-full bg-white/20 dark:bg-slate-900/30 backdrop-blur-md border-b-2 border-white/50 dark:border-slate-600/60 py-2.5 text-center text-[11px] sm:text-xs font-mono tracking-wide flex items-center justify-center gap-2 px-4 select-none shadow-md text-slate-900 dark:text-slate-100">
+      <div className="dark w-full bg-white/20 dark:bg-slate-900/30 backdrop-blur-md border-b-2 border-white/50 dark:border-slate-600/60 py-2.5 text-center text-[11px] sm:text-xs font-mono tracking-wide flex items-center justify-center gap-2 px-4 select-none shadow-md text-slate-900 dark:text-slate-100">
         <Activity className="w-3.5 h-3.5 text-pink-600 animate-pulse" />
         <span className="font-black drop-shadow-sm">DevSpace:</span>
         <span className="truncate max-w-[200px] sm:max-w-none transition-all duration-500 font-bold drop-shadow-sm">{activities[0]}</span>
       </div>
 
       {/* Glass Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/50 dark:border-slate-600/60 bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl transition-all shadow-[0_4px_30px_rgba(0,0,0,0.05)] shadow-inner">
+      <header className="dark sticky top-0 z-50 w-full border-b border-white/50 dark:border-slate-600/60 bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl transition-all shadow-[0_4px_30px_rgba(0,0,0,0.05)] shadow-inner">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
 
           <SiteLogo />
@@ -126,7 +126,7 @@ export default function Home() {
         {/* Hero Section */}
         <section className="w-full py-20 lg:py-32 flex flex-col items-center justify-center text-center px-4 md:px-6 relative z-10">
           <div className="w-full min-w-0 max-w-[1000px] space-y-8">
-
+            <div className="dark contents">
             <div className="inline-flex flex-wrap justify-center items-center gap-2 px-5 py-2 rounded-full border border-white/60 dark:border-slate-600/60 bg-white/40 dark:bg-slate-800/40 backdrop-blur-lg shadow-lg text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 mx-auto select-none max-w-full text-center">
               <Zap className="w-4 h-4 shrink-0 text-yellow-500 fill-yellow-500 drop-shadow-sm" />
               <span className="drop-shadow-sm">Engineered with love by Mahamantra Ghosh</span>
@@ -153,6 +153,7 @@ export default function Home() {
                 {user ? "Go to Dashboard" : "Create Workspace"} <ArrowRight className="ml-2 h-5 w-5 drop-shadow-sm" />
               </Link>
             </div>
+            </div>
 
             {/* Interactive Demo */}
             <div className="mt-8 pt-12 pb-8 w-full max-w-6xl mx-auto relative z-20">
@@ -169,7 +170,7 @@ export default function Home() {
         </section>
 
         {/* Features Grid - Glassmorphic */}
-        <section id="features" className="w-full py-24 relative z-10 border-t border-slate-200/50 dark:border-slate-800/50">
+        <section id="features" className="dark w-full py-24 relative z-10 border-t border-slate-200/50 dark:border-slate-800/50">
           <div className="container mx-auto px-4 md:px-8 max-w-[1200px]">
             <div className="text-center max-w-3xl mx-auto mb-16">
               <h2 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-600 mb-4 inline-block tracking-tight">
@@ -181,7 +182,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mx-auto">
 
-              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
+              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-800/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-800/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
                 <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <Code className="w-7 h-7 text-pink-600 drop-shadow-sm" />
                 </div>
@@ -191,7 +192,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
+              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-800/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-800/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
                 <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <Play className="w-7 h-7 text-pink-600 drop-shadow-sm" />
                 </div>
@@ -201,7 +202,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
+              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-800/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-800/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
                 <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <MessageSquare className="w-7 h-7 text-pink-600 drop-shadow-sm" />
                 </div>
@@ -211,7 +212,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
+              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-800/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-800/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
                 <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <Users className="w-7 h-7 text-pink-600 drop-shadow-sm" />
                 </div>
@@ -221,7 +222,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
+              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-800/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-800/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
                 <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <Bot className="w-7 h-7 text-pink-600 drop-shadow-sm" />
                 </div>
@@ -231,7 +232,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-900/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
+              <div className="group rounded-3xl border border-white/60 dark:border-slate-600/60 bg-white/20 dark:bg-slate-800/30 backdrop-blur-xl p-8 hover:bg-white/30 dark:hover:bg-slate-800/40 transition-all duration-300 shadow-xl shadow-pink-500/5 shadow-inner">
                 <div className="w-14 h-14 rounded-2xl bg-white/60 dark:bg-slate-800/60 border border-white/80 dark:border-slate-500/70 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-md">
                   <Globe className="w-7 h-7 text-pink-600 drop-shadow-sm" />
                 </div>
@@ -250,14 +251,11 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full border-t border-white/50 dark:border-slate-600/60 bg-white/30 dark:bg-slate-900/30 backdrop-blur-lg py-8 mt-auto z-10 relative shadow-inner">
+      <footer className="dark w-full border-t border-white/50 dark:border-slate-600/60 bg-white/30 dark:bg-slate-900/30 backdrop-blur-lg py-8 mt-auto z-10 relative shadow-inner">
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-pink-600 drop-shadow-sm" />
-            <span className="font-black text-lg text-slate-900 dark:text-slate-100 drop-shadow-md">MantraCode</span>
-          </div>
+          <SiteLogo />
           <div className="text-slate-800 dark:text-slate-200 font-black text-sm bg-white/50 dark:bg-slate-800/50 px-5 py-2.5 rounded-xl border border-white/60 dark:border-slate-600/60 shadow-md backdrop-blur-sm drop-shadow-sm">
-            Created with passion by <span className="text-pink-700 dark:text-pink-400">Mahamantra Ghosh</span>
+            Created with passion by <span className="text-pink-500">Mahamantra Ghosh</span>
           </div>
           <div className="flex items-center gap-4">
             <a href="https://github.com/mahamantraghosh/DevSpace" target="_blank" rel="noreferrer" className="h-10 px-4 rounded-full bg-white/60 dark:bg-slate-800/60 flex items-center justify-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-pink-600 hover:bg-white/90 dark:hover:bg-slate-800/90 transition-all border border-white/70 dark:border-slate-600/60 shadow-md">

@@ -200,7 +200,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent pb-20">
+    <div className="dark min-h-screen bg-transparent pb-20">
       {/* Dashboard Header */}
       <header className="bg-white/30 dark:bg-slate-900/30 backdrop-blur-xl border-b border-white/50 dark:border-slate-600/60 sticky top-0 z-10 shadow-[0_4px_30px_rgba(0,0,0,0.05)] shadow-inner">
         <div className="container mx-auto px-4 md:px-8 h-16 flex items-center justify-between">

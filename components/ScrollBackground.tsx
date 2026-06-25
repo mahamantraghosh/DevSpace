@@ -75,10 +75,10 @@ export default function ScrollBackground() {
     // Desktop: 0-40% first image, 40-70% transition, 70-100% second image
     if (rawProgress < 0.4) {
       progress = 0;
-    } else if (rawProgress > 0.70) {
+    } else if (rawProgress > 0.7) {
       progress = 1;
     } else {
-      progress = (rawProgress - 0.4) / 0.30;
+      progress = (rawProgress - 0.4) / 0.3;
     }
   }
 
@@ -141,9 +141,9 @@ export default function ScrollBackground() {
       {/* Global Overlay to handle transparency and blur independently per page */}
       <div
         className={`fixed inset-0 pointer-events-none transition-all duration-1000 z-[-1] ${pathname === '/'
-          ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px] /* <-- TWEAK BLUR HERE FOR HOME PAGE (e.g., backdrop-blur-[4px], backdrop-blur-sm) */'
+          ? 'bg-white/5 dark:bg-white/10 dark:bg-opacity-10 backdrop-blur-[1px] /* <-- TWEAK BLUR HERE FOR HOME PAGE (e.g., backdrop-blur-[4px], backdrop-blur-sm) */'
           : pathname === '/dashboard'
-            ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px] /* <-- TWEAK BLUR HERE FOR DASHBOARD */'
+            ? 'bg-white/5 dark:bg-white/10 dark:bg-opacity-10 backdrop-blur-[1px] /* <-- TWEAK BLUR HERE FOR DASHBOARD */'
             : 'bg-transparent'
           }`}
       ></div>

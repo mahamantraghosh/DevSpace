@@ -62,7 +62,7 @@ export default function RootLayout({
             <Toaster position="top-center" />
             <ThemeToggle />
             <CursorTrail />
-            <GlobalMusicPlayer />
+            <div className="dark contents"><GlobalMusicPlayer /></div>
             <div className="relative z-0 flex flex-col min-h-full flex-1">
               {children}
             </div>
