@@ -71,6 +71,15 @@ export default function ScrollBackground() {
     } else {
       progress = (rawProgress - 0.3) / 0.2;
     }
+  } else {
+    // Desktop: 0-40% first image, 40-70% transition, 70-100% second image
+    if (rawProgress < 0.4) {
+      progress = 0;
+    } else if (rawProgress > 0.70) {
+      progress = 1;
+    } else {
+      progress = (rawProgress - 0.4) / 0.30;
+    }
   }
 
   // --- PARALLAX & POSITIONS ---
