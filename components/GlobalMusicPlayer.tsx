@@ -73,11 +73,13 @@ export default function GlobalMusicPlayer() {
             }).catch(() => {});
           }
           document.removeEventListener('click', handleFirstInteraction);
+          document.removeEventListener('touchstart', handleFirstInteraction);
           document.removeEventListener('keydown', handleFirstInteraction);
           document.removeEventListener('pointerdown', handleFirstInteraction);
         };
         
         document.addEventListener('click', handleFirstInteraction);
+        document.addEventListener('touchstart', handleFirstInteraction);
         document.addEventListener('keydown', handleFirstInteraction);
         document.addEventListener('pointerdown', handleFirstInteraction);
       });
