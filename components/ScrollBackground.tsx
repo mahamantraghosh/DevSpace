@@ -107,11 +107,11 @@ export default function ScrollBackground() {
     const parallaxFactor = 0.3;
     parallax1 = currentScroll * parallaxFactor;
     parallax2 = (currentScroll - currentMaxScroll) * parallaxFactor;
-    
+
     if (theme === "dark") {
       // Bring both dark theme images slightly upward on desktop as requested
       imageTop = "-15vh";
-      imageTop2 = "-15vh"; 
+      imageTop2 = "-15vh";
     }
   }
 
@@ -132,9 +132,9 @@ export default function ScrollBackground() {
       {/* Global Overlay to handle transparency and blur independently per page */}
       <div
         className={`fixed inset-0 pointer-events-none transition-all duration-1000 z-[-1] ${pathname === '/'
-          ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[2px]'
+          ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px] /* <-- TWEAK BLUR HERE FOR HOME PAGE (e.g., backdrop-blur-[4px], backdrop-blur-sm) */'
           : pathname === '/dashboard'
-            ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px]' // Dashboard specific blur
+            ? 'bg-pink-200/40 dark:bg-white/5 dark:bg-opacity-10 backdrop-blur-[1px] /* <-- TWEAK BLUR HERE FOR DASHBOARD */'
             : 'bg-transparent'
           }`}
       ></div>
@@ -143,18 +143,19 @@ export default function ScrollBackground() {
         {/* Parallax wrapper 1 */}
         <div
           className="absolute top-0 left-0 w-full h-[200vh]"
-          style={{ transform: isAuthPage ? undefined : `translateY(-${parallax1}px)` }}
+          style={{ transform: isAuthPage ? undefined : `translate3d(0, -${parallax1}px, 0)` }}
         >
-          <div className="absolute top-0 left-0 w-full h-full transition-opacity duration-300 animate-nature-float" style={{ opacity: isAuthPage ? 1 : 1 - progress }}>
+          <div className="absolute top-0 left-0 w-full h-full animate-nature-float" style={{ opacity: isAuthPage ? 1 : 1 - progress, willChange: "transform, opacity" }}>
             {/* Base Background: Generated Seamless Bottom Texture */}
-            <div className="absolute inset-0" style={{ backgroundImage: botPattern1, backgroundSize: "100% auto", backgroundRepeat: "repeat", backgroundPosition: `center -${bgPos1}px` }}></div>
+            <div className="absolute -top-[50vh] -bottom-[50vh] left-0 w-full" style={{ backgroundImage: botPattern1, backgroundSize: "100% auto", backgroundRepeat: "repeat", transform: `translate3d(0, -${bgPos1}px, 0)`, willChange: "transform" }}></div>
 
             {/* Top Fade Background: Generated Seamless Top Texture fading downwards */}
-            <div className="absolute top-0 left-0 w-full h-[60vh]" style={{
+            <div className="absolute -top-[20vh] left-0 w-full h-[100vh]" style={{
               backgroundImage: topPattern1,
               backgroundSize: "100% auto",
               backgroundRepeat: "repeat",
-              backgroundPosition: `center -${bgPos1}px`,
+              transform: `translate3d(0, -${bgPos1}px, 0)`,
+              willChange: "transform",
               WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
               maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)"
             }}></div>
@@ -176,32 +177,34 @@ export default function ScrollBackground() {
         {!isAuthPage && (
           <div
             className="absolute top-0 left-0 w-full h-[200vh]"
-            style={{ transform: `translateY(-${parallax2}px)` }}
+            style={{ transform: `translate3d(0, -${parallax2}px, 0)` }}
           >
             {/* Parallax wrapper 2 */}
-            <div className="absolute top-0 left-0 w-full h-full transition-opacity duration-300 animate-nature-float" style={{ opacity: progress }}>
+            <div className="absolute top-0 left-0 w-full h-full animate-nature-float" style={{ opacity: progress, willChange: "transform, opacity" }}>
               {/* Base Background: Generated Seamless Bottom Texture */}
-              <div className="absolute inset-0" style={{ backgroundImage: botPattern2, backgroundSize: "100% auto", backgroundRepeat: "repeat", backgroundPosition: `center -${bgPos2}px` }}></div>
+              <div className="absolute -top-[50vh] -bottom-[50vh] left-0 w-full" style={{ backgroundImage: botPattern2, backgroundSize: "100% auto", backgroundRepeat: "repeat", transform: `translate3d(0, -${bgPos2}px, 0)`, willChange: "transform" }}></div>
 
               {/* Top Fade Background: Generated Seamless Top Texture fading downwards */}
-              <div className="absolute top-0 left-0 w-full h-[60vh]" style={{
+              <div className="absolute -top-[20vh] left-0 w-full h-[100vh]" style={{
                 backgroundImage: topPattern2,
                 backgroundSize: "100% auto",
                 backgroundRepeat: "repeat",
-                backgroundPosition: `center -${bgPos2}px`,
+                transform: `translate3d(0, -${bgPos2}px, 0)`,
+                willChange: "transform",
                 WebkitMaskImage: "linear-gradient(to bottom, black 30%, transparent 100%)",
                 maskImage: "linear-gradient(to bottom, black 30%, transparent 100%)"
               }}></div>
 
               {/* Image */}
-              <div className="absolute left-0 w-full pointer-events-none" style={{ top: imageTop2, transform: `translateY(-${bgPos2}px)` }}>
+              <div className="absolute left-0 w-full pointer-events-none" style={{ top: imageTop2, transform: `translate3d(0, -${bgPos2}px, 0)` }}>
                 <img
                   src={images[1]}
                   alt=""
                   className="w-full h-auto block"
                   style={{
                     WebkitMaskImage: maskStyle,
-                    maskImage: maskStyle
+                    maskImage: maskStyle,
+                    willChange: "transform"
                   }}
                 />
               </div>

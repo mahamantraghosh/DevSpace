@@ -24,6 +24,7 @@ const getGlobalAudio = () => {
 export default function GlobalMusicPlayer() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
   
   // Dragging state
   const [position, setPosition] = useState({ x: 16, y: 16 });
@@ -147,7 +148,11 @@ export default function GlobalMusicPlayer() {
 
   const handleContainerClick = (e: React.MouseEvent) => {
     if (dragRef.current.hasMoved) return; 
-    
+    setIsExpanded(!isExpanded);
+  };
+
+  const togglePlay = (e: React.MouseEvent | React.PointerEvent) => {
+    e.stopPropagation();
     const audio = getGlobalAudio();
     if (audio) {
       if (isPlaying) {
@@ -173,8 +178,8 @@ export default function GlobalMusicPlayer() {
 
   return (
     <div 
-      className={`fixed z-50 flex items-center gap-3 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 p-2 pr-4 rounded-full shadow-lg shadow-pink-500/10 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-colors duration-300 group select-none touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-105'}`}
-      style={{ left: `${position.x}px`, bottom: `${position.y}px`, transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s' }}
+      className={`fixed z-50 flex items-center bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-full shadow-lg shadow-pink-500/10 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-500 overflow-hidden group select-none touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-105'} ${isExpanded ? 'max-w-[350px] p-2 pr-4 gap-3' : 'max-w-[56px] p-2 gap-0'}`}
+      style={{ left: `${position.x}px`, bottom: `${position.y}px` }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -182,7 +187,10 @@ export default function GlobalMusicPlayer() {
       onClick={handleContainerClick}
     >
       {/* Mini spinning vinyl disc */}
-      <div className={`relative shrink-0 w-10 h-10 rounded-full bg-slate-800 border-[2px] border-slate-900 shadow-md flex items-center justify-center overflow-hidden ${isPlaying ? 'animate-spin [animation-duration:3s]' : 'transition-transform duration-500'}`}>
+      <div 
+        onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded); }}
+        className={`relative shrink-0 w-10 h-10 rounded-full bg-slate-800 border-[2px] border-slate-900 shadow-md flex items-center justify-center overflow-hidden cursor-pointer ${isPlaying ? 'animate-spin [animation-duration:3s]' : 'transition-transform duration-500'}`}
+      >
         <div className="absolute inset-0 rounded-full border border-slate-700 m-[2px]"></div>
         <div className="absolute inset-0 rounded-full border border-slate-700 m-[6px]"></div>
         <div className="absolute top-0.5 right-1 text-pink-400 drop-shadow-md rotate-45 z-0">
@@ -194,58 +202,74 @@ export default function GlobalMusicPlayer() {
         </div>
       </div>
       
-      {/* Title & Status */}
-      <div className="flex flex-col min-w-[80px]">
-        <select 
-          value={currentTrackIndex}
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-          onChange={(e) => {
-            setCurrentTrackIndex(Number(e.target.value));
-            const audio = getGlobalAudio();
-            if (audio && audio.paused) {
-              window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'global' } }));
-              audio.play().catch(() => {});
-            }
-          }}
-          className="text-[12px] font-bold text-slate-800 dark:text-slate-200 bg-transparent outline-none cursor-pointer appearance-none truncate leading-tight group-hover:text-pink-600 transition-colors -ml-1 pl-1"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ec4899' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', paddingRight: '14px' }}
-        >
-          {PLAYLIST.map((t, i) => (
-            <option key={i} value={i} className="text-slate-800 bg-white">{t.title}</option>
-          ))}
-        </select>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          {isPlaying ? (
-            <>
-              <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
-              <span className="text-[9px] font-mono text-pink-600 font-bold uppercase tracking-widest">Playing</span>
-            </>
-          ) : (
-            <>
-              <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor" className="text-slate-400"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <span className="text-[9px] font-mono text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Paused</span>
-            </>
-          )}
+      {/* Expanded Content */}
+      <div className={`flex items-center gap-3 whitespace-nowrap transition-opacity duration-300 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        {/* Title & Status */}
+        <div className="flex flex-col min-w-[80px]">
+          <select 
+            value={currentTrackIndex}
+            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              setCurrentTrackIndex(Number(e.target.value));
+              const audio = getGlobalAudio();
+              if (audio && audio.paused) {
+                window.dispatchEvent(new CustomEvent('pause-audio', { detail: { source: 'global' } }));
+                audio.play().catch(() => {});
+              }
+            }}
+            className="text-[12px] font-bold text-slate-800 dark:text-slate-200 bg-transparent outline-none cursor-pointer appearance-none truncate leading-tight hover:text-pink-600 transition-colors -ml-1 pl-1"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ec4899' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right center', paddingRight: '14px' }}
+          >
+            {PLAYLIST.map((t, i) => (
+              <option key={i} value={i} className="text-slate-800 bg-white">{t.title}</option>
+            ))}
+          </select>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            {isPlaying ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
+                <span className="text-[9px] font-mono text-pink-600 font-bold uppercase tracking-widest">Playing</span>
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor" className="text-slate-400"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span className="text-[9px] font-mono text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">Paused</span>
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Track Navigation */}
-      <div className="flex items-center gap-1 border-l border-slate-300/50 dark:border-slate-600/50 pl-2 ml-1">
-        <button 
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={handlePrev}
-          className="p-1 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
-        </button>
-        <button 
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={handleNext}
-          className="p-1 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-        </button>
+        {/* Track Navigation */}
+        <div className="flex items-center gap-1 border-l border-slate-300/50 dark:border-slate-600/50 pl-2 ml-1">
+          <button 
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={handlePrev}
+            className="p-1.5 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+          </button>
+          
+          <button 
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={togglePlay}
+            className="p-1.5 rounded-full text-slate-800 dark:text-slate-200 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
+          >
+            {isPlaying ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            )}
+          </button>
+
+          <button 
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={handleNext}
+            className="p-1.5 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+          </button>
+        </div>
       </div>
     </div>
   );
