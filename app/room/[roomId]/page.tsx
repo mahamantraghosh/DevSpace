@@ -4,12 +4,14 @@ import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Pusher, { PresenceChannel } from "pusher-js";
-import { Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check, AlertCircle, Lock } from "lucide-react";
+import { Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check, AlertCircle, Lock, GitBranch, Terminal } from "lucide-react";
 import PlaygroundEditor from "@/components/PlaygroundEditor";
 import LivePreview from "@/components/LivePreview";
 import ChatPanel from "@/components/ChatPanel";
 import RoomSidebar from "@/components/RoomSidebar";
 import FileExplorer from "@/components/FileExplorer";
+import GitHubPanel from "@/components/GitHubPanel";
+import IDETerminal from "@/components/IDETerminal";
 import InteractiveWorkspaceBg from "@/components/InteractiveWorkspaceBg";
 import NavbarThemeToggle from "@/components/NavbarThemeToggle";
 import SiteLogo from "@/components/SiteLogo";
@@ -63,10 +65,11 @@ export default function RoomPage() {
   });
   const [activeFile, setActiveFile] = useState<string>("/index.html");
   const [copied, setCopied] = useState<boolean>(false);
-  const [activeTabSidebar, setActiveTabSidebar] = useState<"files" | "users" | "chat">("files");
+  const [activeTabSidebar, setActiveTabSidebar] = useState<"files" | "users" | "chat" | "github">("files");
   const [error, setError] = useState<string | null>(null);
   const [passwordRequired, setPasswordRequired] = useState(false);
   const [roomPassword, setRoomPassword] = useState("");
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [verifyingPassword, setVerifyingPassword] = useState(false);
 
   const [currentUserSocketId, setCurrentUserSocketId] = useState<string>("");
@@ -479,30 +482,38 @@ export default function RoomPage() {
           <div className="flex border-b border-pink-300/80 p-2 gap-1 bg-white/40 shadow-sm">
             <button 
               onClick={() => setActiveTabSidebar("files")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${activeTabSidebar === "files" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
+              className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${activeTabSidebar === "files" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
               Files
             </button>
             <button 
               onClick={() => setActiveTabSidebar("users")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${activeTabSidebar === "users" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
+              className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${activeTabSidebar === "users" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
             >
               <Users size={14} strokeWidth={2.5} />
               Users
             </button>
             <button 
               onClick={() => setActiveTabSidebar("chat")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${activeTabSidebar === "chat" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
+              className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${activeTabSidebar === "chat" ? "bg-pink-500 text-white shadow-md shadow-pink-500/30" : "text-slate-500 hover:bg-white/80 hover:text-pink-600"}`}
             >
               <MessageSquare size={14} strokeWidth={2.5} />
               Chat
+            </button>
+            <button 
+              onClick={() => setActiveTabSidebar("github")}
+              className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all flex flex-col items-center justify-center gap-1 ${activeTabSidebar === "github" ? "bg-slate-900 text-white shadow-md shadow-slate-900/30 dark:bg-white dark:text-slate-900" : "text-slate-500 hover:bg-white/80 hover:text-slate-800 dark:hover:text-white"}`}
+            >
+              <GitBranch size={14} strokeWidth={2.5} />
+              GitHub
             </button>
           </div>
           <div className="p-2 border-b border-pink-400/70 font-black text-[10px] uppercase tracking-widest text-pink-600 bg-white/30">
             {activeTabSidebar === "files" && "Workspace Explorer"}
             {activeTabSidebar === "users" && "Active Users"}
             {activeTabSidebar === "chat" && "Team Communication"}
+            {activeTabSidebar === "github" && "Source Control"}
           </div>
           <div className="flex-1 overflow-hidden relative">
             {activeTabSidebar === "files" && (
@@ -519,6 +530,19 @@ export default function RoomPage() {
             )}
             {activeTabSidebar === "chat" && (
               <ChatPanel roomId={roomId} username={username} messages={messages} typingUsers={typingUsers} />
+            )}
+            {activeTabSidebar === "github" && (
+              <GitHubPanel 
+                roomId={roomId} 
+                onCloneSuccess={() => {
+                  // The files are loaded into Redis. 
+                  // Because we don't have a full refetch system wired to the UI for "clones",
+                  // we can just force reload the page to load the files from the server, 
+                  // or we can fetch them via a simple GET.
+                  // For simplicity, a page reload works perfectly.
+                  window.location.reload();
+                }} 
+              />
             )}
           </div>
         </div>
@@ -551,17 +575,37 @@ export default function RoomPage() {
               </button>
             ))}
           </div>
-          <div className="flex-1 relative">
-            {Object.keys(files).length > 0 ? (
-              <PlaygroundEditor
-                code={files[activeFile] || ""}
-                onChange={handleCodeChange}
-                codeType={activeFile.split('.').pop() || "js"}
+          <div className="flex-1 relative flex flex-col min-h-0">
+            <div className="flex-1 relative min-h-0">
+              {Object.keys(files).length > 0 ? (
+                <PlaygroundEditor
+                  code={files[activeFile] || ""}
+                  onChange={handleCodeChange}
+                  codeType={activeFile.split('.').pop() || "js"}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-slate-400 font-bold">
+                  No files open. Create a file in the explorer.
+                </div>
+              )}
+            </div>
+            
+            {isTerminalOpen && (
+              <IDETerminal 
+                onClose={() => setIsTerminalOpen(false)} 
+                files={files} 
+                roomId={roomId} 
               />
-            ) : (
-              <div className="flex items-center justify-center h-full text-slate-400 font-bold">
-                No files open. Create a file in the explorer.
-              </div>
+            )}
+            
+            {!isTerminalOpen && (
+              <button 
+                onClick={() => setIsTerminalOpen(true)}
+                className="absolute bottom-4 right-4 bg-slate-900/80 hover:bg-slate-900 text-white p-2.5 rounded-full shadow-lg transition-transform hover:scale-110 z-20 backdrop-blur-md border border-slate-700/50"
+                title="Open Terminal"
+              >
+                <Terminal size={18} />
+              </button>
             )}
           </div>
         </div>

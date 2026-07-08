@@ -26,12 +26,21 @@ export default function LivePreview({ files = {} }: LivePreviewProps) {
     // Reset logs on fresh recompilation
     setLogs([]);
 
-    const htmlContent = files["/index.html"] || "";
-    const cssContent = files["/styles.css"] || "";
-    const jsContent = Object.keys(files)
-      .filter(f => f.endsWith('.js') && f !== '/index.html')
+    // Intelligently find the primary HTML and CSS files
+    const htmlFileKey = Object.keys(files).find(f => f.endsWith('.html')) || "/index.html";
+    let htmlContent = files[htmlFileKey] || "";
+
+    // Concatenate all CSS files
+    const cssContent = Object.keys(files)
+      .filter(f => f.endsWith('.css'))
       .map(f => files[f])
-      .join('\n\n'); // Concatenate all JS files for now
+      .join('\n\n');
+
+    // Concatenate all JS files (except HTML of course)
+    const jsContent = Object.keys(files)
+      .filter(f => f.endsWith('.js'))
+      .map(f => files[f])
+      .join('\n\n');
 
     const combinedDoc = `
       <!DOCTYPE html>
