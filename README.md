@@ -1,2 +1,2 @@
 # Krishnas-Currency-Converter
-Krishna Conscious Currency Converter using api
+Krishna Conscious Currency Converter
