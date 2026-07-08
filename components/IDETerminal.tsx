@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Terminal as TerminalIcon, X, Maximize2, Minimize2, ChevronRight } from "lucide-react";
+import { useTheme } from "next-themes";
 
 interface IDETerminalProps {
   onClose: () => void;
@@ -28,6 +29,9 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
   const isDragging = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
+  const { theme: globalTheme } = useTheme();
+  const [themeMode, setThemeMode] = useState<"system" | "dark" | "light">("system");
+  const isDark = themeMode === "dark" || (themeMode === "system" && globalTheme === "dark");
 
   useEffect(() => {
     if (endRef.current) {
@@ -80,7 +84,7 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
       case "help":
         setLogs(prev => [...prev, { 
           type: "output", 
-          text: "Available commands:\n  ls       - List workspace files\n  clear    - Clear terminal output\n  echo     - Print text\n  git      - Simulated git commands (e.g. 'git status', 'git push origin main')\n  npm      - Simulated node commands" 
+          text: "Available commands:\n  ls       - List workspace files\n  clear    - Clear terminal output\n  echo     - Print text\n  git      - Simulated git commands (e.g. 'git status', 'git push origin main')\n  npm      - Simulated node commands\n  theme    - Change terminal theme (dark|light|system)" 
         }]);
         break;
       case "clear":
@@ -101,6 +105,20 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
           }, 800);
         } else {
           setLogs(prev => [...prev, { type: "error", text: "This is a web sandbox. Real npm commands are not supported." }]);
+        }
+        break;
+      case "theme":
+        if (args[1] === "dark") {
+          setThemeMode("dark");
+          setLogs(prev => [...prev, { type: "system", text: "Terminal theme set to dark" }]);
+        } else if (args[1] === "light") {
+          setThemeMode("light");
+          setLogs(prev => [...prev, { type: "system", text: "Terminal theme set to light" }]);
+        } else if (args[1] === "system") {
+          setThemeMode("system");
+          setLogs(prev => [...prev, { type: "system", text: "Terminal theme synced with system" }]);
+        } else {
+          setLogs(prev => [...prev, { type: "output", text: "Usage: theme <dark|light|system>" }]);
         }
         break;
       case "git":
@@ -153,7 +171,7 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
   return (
     <div 
       style={{ height: isExpanded ? '50vh' : `${height}px` }}
-      className={`flex flex-col bg-slate-950 shadow-2xl z-30 relative shrink-0 border-t border-slate-700/50 ${isExpanded ? "transition-all duration-300" : ""}`}
+      className={`flex flex-col shadow-2xl z-30 relative shrink-0 border-t ${isDark ? "bg-slate-950 border-slate-700/50" : "bg-slate-100 border-slate-300"} ${isExpanded ? "transition-all duration-300" : ""}`}
     >
       {/* Resizer Handle */}
       <div 
@@ -162,16 +180,16 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
       />
       
       {/* Terminal Header */}
-      <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800 shrink-0 select-none">
+      <div className={`flex items-center justify-between px-4 py-2 border-b shrink-0 select-none ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-200 border-slate-300"}`}>
         <div className="flex items-center gap-2">
-          <TerminalIcon size={14} className="text-slate-400" />
-          <span className="text-xs font-mono text-slate-300">bash</span>
+          <TerminalIcon size={14} className={`text-slate-500 ${isDark ? "text-slate-400" : ""}`} />
+          <span className={`text-xs font-mono ${isDark ? "text-slate-300" : "text-slate-700"}`}>bash</span>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setIsExpanded(!isExpanded)} className="text-slate-500 hover:text-slate-300 transition">
+          <button onClick={() => setIsExpanded(!isExpanded)} className={`transition ${isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-500 hover:text-slate-800"}`}>
             {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
           </button>
-          <button onClick={onClose} className="text-slate-500 hover:text-red-400 transition">
+          <button onClick={onClose} className={`transition ${isDark ? "text-slate-500 hover:text-red-400" : "text-slate-500 hover:text-red-500"}`}>
             <X size={16} />
           </button>
         </div>
@@ -185,10 +203,10 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
         <div className="flex flex-col gap-1 mb-2">
           {logs.map((log, i) => (
             <div key={i} className={`whitespace-pre-wrap break-all ${
-              log.type === "command" ? "text-slate-300" :
-              log.type === "error" ? "text-red-400" :
-              log.type === "system" ? "text-blue-400 font-bold" :
-              "text-green-400"
+              log.type === "command" ? (isDark ? "text-slate-300" : "text-slate-800") :
+              log.type === "error" ? (isDark ? "text-red-400" : "text-red-600") :
+              log.type === "system" ? (isDark ? "text-blue-400 font-bold" : "text-blue-600 font-bold") :
+              (isDark ? "text-green-400" : "text-green-700")
             }`}>
               {log.text}
             </div>
@@ -196,16 +214,16 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
         </div>
         
         {/* Input Line */}
-        <form onSubmit={handleCommand} className="flex items-center gap-2 text-slate-300">
-          <ChevronRight size={14} className="text-pink-500 shrink-0" />
-          <span className="text-blue-400 font-bold shrink-0">~/workspace</span>
+        <form onSubmit={handleCommand} className={`flex items-center gap-2 ${isDark ? "text-slate-300" : "text-slate-800"}`}>
+          <ChevronRight size={14} className={`shrink-0 ${isDark ? "text-pink-500" : "text-pink-600"}`} />
+          <span className={`font-bold shrink-0 ${isDark ? "text-blue-400" : "text-blue-600"}`}>~/workspace</span>
           <span className="text-slate-500 shrink-0">$</span>
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-slate-300 min-w-0"
+            className={`flex-1 bg-transparent border-none outline-none min-w-0 ${isDark ? "text-slate-300" : "text-slate-800"}`}
             autoFocus
             spellCheck={false}
             autoComplete="off"
