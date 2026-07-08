@@ -71,6 +71,7 @@ export default function RoomPage() {
   const [roomPassword, setRoomPassword] = useState("");
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [verifyingPassword, setVerifyingPassword] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
 
   const [currentUserSocketId, setCurrentUserSocketId] = useState<string>("");
 
@@ -233,6 +234,11 @@ export default function RoomPage() {
           ...prev,
           [data.filename]: data.value,
         }));
+        if (data.filename === activeFile) {
+          setIsSaved(false);
+          // Auto-save indication after a short delay is handled by the typist if needed, 
+          // or we just rely on manual save for visual feedback.
+        }
       });
 
       channel.bind("file-create", (data: { filename: string; value: string }) => {
@@ -245,6 +251,31 @@ export default function RoomPage() {
           delete newFiles[data.filename];
           return newFiles;
         });
+      });
+
+      channel.bind("file-rename", (data: { oldPath: string, newPath: string, isFolder: boolean }) => {
+        setFiles((prev) => {
+          const newFiles = { ...prev };
+          if (data.isFolder) {
+            Object.keys(newFiles).forEach(key => {
+              if (key.startsWith(data.oldPath + "/")) {
+                const newKey = data.newPath + key.slice(data.oldPath.length);
+                newFiles[newKey] = newFiles[key];
+                delete newFiles[key];
+              }
+            });
+          } else {
+            if (newFiles[data.oldPath] !== undefined) {
+              newFiles[data.newPath] = newFiles[data.oldPath];
+              delete newFiles[data.oldPath];
+            }
+          }
+          return newFiles;
+        });
+      });
+
+      channel.bind("files-import", (data: { files: Record<string, string> }) => {
+        setFiles((prev) => ({ ...prev, ...data.files }));
       });
 
       channel.bind("typing-update", (data: { username: string; isTyping: boolean }) => {
@@ -352,6 +383,70 @@ export default function RoomPage() {
     }
   };
 
+  const handleFilesImport = async (importedFiles: Record<string, string>) => {
+    setFiles((prev) => ({ ...prev, ...importedFiles }));
+    
+    // Set the first imported file as active if there are any
+    const newKeys = Object.keys(importedFiles);
+    if (newKeys.length > 0) {
+      setActiveFile(newKeys[0]);
+    }
+
+    try {
+      await fetch(`/api/room/${roomId}/action`, {
+        method: "POST",
+        body: JSON.stringify({
+          type: "files-import",
+          socket_id: currentUserSocketId,
+          payload: { files: importedFiles }
+        })
+      });
+    } catch (err) {
+      console.error("Failed to import files:", err);
+    }
+  };
+
+  const handleFileRename = async (oldPath: string, newPath: string) => {
+    const isFolder = Object.keys(files).some(f => f.startsWith(oldPath + "/"));
+    
+    setFiles((prev) => {
+      const newFiles = { ...prev };
+      if (isFolder) {
+        Object.keys(newFiles).forEach(key => {
+          if (key.startsWith(oldPath + "/")) {
+            const newKey = newPath + key.slice(oldPath.length);
+            newFiles[newKey] = newFiles[key];
+            delete newFiles[key];
+          }
+        });
+      } else {
+        if (newFiles[oldPath] !== undefined) {
+          newFiles[newPath] = newFiles[oldPath];
+          delete newFiles[oldPath];
+        }
+      }
+      return newFiles;
+    });
+
+    if (activeFile === oldPath) setActiveFile(newPath);
+    else if (activeFile.startsWith(oldPath + "/")) {
+      setActiveFile(newPath + activeFile.slice(oldPath.length));
+    }
+
+    try {
+      await fetch(`/api/room/${roomId}/action`, {
+        method: "POST",
+        body: JSON.stringify({
+          type: "file-rename",
+          socket_id: currentUserSocketId,
+          payload: { oldPath, newPath, isFolder }
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleFileDelete = async (filename: string) => {
     setFiles((prev) => {
       const newFiles = { ...prev };
@@ -376,6 +471,17 @@ export default function RoomPage() {
     }
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        setIsSaved(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   if (passwordRequired) {
     return (
       <div className="flex flex-col h-screen bg-transparent text-foreground overflow-hidden font-sans relative z-10">
@@ -391,7 +497,7 @@ export default function RoomPage() {
                 This workspace is protected. Please enter the password to join.
               </p>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); /* Dependency array will re-trigger useEffect when roomPassword changes if we structured it differently, but here we manually re-trigger by calling a separate submit function or just letting the user wait? Actually, changing roomPassword triggers the useEffect! */ }} className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); }} className="space-y-4">
               <input
                 type="password"
                 required
@@ -523,6 +629,8 @@ export default function RoomPage() {
                 onFileSelect={setActiveFile} 
                 onFileCreate={handleFileCreate}
                 onFileDelete={handleFileDelete}
+                onFileRename={handleFileRename}
+                onFilesImport={handleFilesImport}
               />
             )}
             {activeTabSidebar === "users" && (
@@ -535,11 +643,6 @@ export default function RoomPage() {
               <GitHubPanel 
                 roomId={roomId} 
                 onCloneSuccess={() => {
-                  // The files are loaded into Redis. 
-                  // Because we don't have a full refetch system wired to the UI for "clones",
-                  // we can just force reload the page to load the files from the server, 
-                  // or we can fetch them via a simple GET.
-                  // For simplicity, a page reload works perfectly.
                   window.location.reload();
                 }} 
               />
@@ -560,20 +663,37 @@ export default function RoomPage() {
         {/* Center: Editor */}
         <div className={`flex-1 flex-col min-w-0 bg-white/30 backdrop-blur-md relative ${isDragging ? 'pointer-events-none' : ''} ${mobileTab === 'editor' ? 'flex w-full' : 'hidden md:flex'}`}>
           {/* Editor Header / Tabs */}
-          <div className="flex bg-white/50 border-b border-pink-400/70 overflow-x-auto custom-scroll shadow-sm">
-            {Object.keys(files).map((filename) => (
-              <button
-                key={filename}
-                onClick={() => setActiveFile(filename)}
-                className={`px-4 py-2 text-xs font-bold font-mono transition border-r border-pink-400/50 whitespace-nowrap ${
-                  activeFile === filename
-                    ? "bg-white text-pink-700 border-t-2 border-t-pink-500 shadow-sm"
-                    : "text-slate-600 hover:bg-white/80 border-t-2 border-t-transparent hover:text-pink-700"
-                }`}
-              >
-                {filename.replace(/^\//, '')}
-              </button>
-            ))}
+          <div className="flex bg-white/50 border-b border-pink-400/70 overflow-hidden relative h-12">
+            <div className="flex-1 overflow-x-auto custom-scroll flex items-center pr-24">
+              {Object.keys(files)
+                .filter((f) => !f.endsWith(".keep") && !f.endsWith("/"))
+                .map((filename) => (
+                  <button
+                    key={filename}
+                    onClick={() => setActiveFile(filename)}
+                    className={`px-4 py-2 text-sm whitespace-nowrap border-r border-slate-200/50 dark:border-slate-800 transition-colors ${
+                      activeFile === filename
+                        ? "bg-white text-pink-700 border-t-2 border-t-pink-500 shadow-sm"
+                        : "text-slate-600 hover:bg-white/80 border-t-2 border-t-transparent hover:text-pink-700"
+                    }`}
+                  >
+                    {filename.split('/').pop()}
+                    {activeFile === filename && !isSaved && <span className="ml-2 text-pink-500 font-bold">*</span>}
+                  </button>
+                ))}
+            </div>
+            <div className="absolute right-0 top-0 bottom-0 flex items-center px-4 bg-gradient-to-l from-slate-50 via-slate-50 to-transparent">
+              {activeFile && (
+                <button 
+                  onClick={() => setIsSaved(true)} 
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition ${isSaved ? "text-slate-400 bg-slate-100" : "text-white bg-pink-500 shadow-md shadow-pink-500/20"}`}
+                  title="Save (Cmd+S)"
+                >
+                  <Check size={14} />
+                  {isSaved ? "Saved" : "Save"}
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex-1 relative flex flex-col min-h-0">
             <div className="flex-1 relative min-h-0">
@@ -595,6 +715,9 @@ export default function RoomPage() {
                 onClose={() => setIsTerminalOpen(false)} 
                 files={files} 
                 roomId={roomId} 
+                onFileCreate={handleFileCreate}
+                onFileDelete={handleFileDelete}
+                onFileRename={handleFileRename}
               />
             )}
             
@@ -626,7 +749,7 @@ export default function RoomPage() {
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-2">Live Preview</span>
           </div>
           <div className="flex-1 border-0">
-            <LivePreview files={files} />
+            <LivePreview files={files} activeFile={activeFile} />
           </div>
         </aside>
       </div>

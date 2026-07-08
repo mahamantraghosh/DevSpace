@@ -8,6 +8,9 @@ interface IDETerminalProps {
   onClose: () => void;
   files: Record<string, string>;
   roomId: string;
+  onFileCreate?: (path: string) => void;
+  onFileDelete?: (path: string) => void;
+  onFileRename?: (oldPath: string, newPath: string) => void;
 }
 
 interface LogEntry {
@@ -15,17 +18,18 @@ interface LogEntry {
   text: string;
 }
 
-export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps) {
+export default function IDETerminal({ onClose, files, roomId, onFileCreate, onFileDelete, onFileRename }: IDETerminalProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState("");
+  const [cwd, setCwd] = useState("/");
   const [logs, setLogs] = useState<LogEntry[]>([
-    { type: "system", text: "MantraCode Web Terminal v1.0.0" },
+    { type: "system", text: "MantraCode Web Terminal v2.0.0" },
     { type: "system", text: "Type 'help' for a list of available commands." }
   ]);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [height, setHeight] = useState(256); // 256px default (equivalent to h-64)
+  const [height, setHeight] = useState(256); 
   const isDragging = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
@@ -42,7 +46,7 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
-      const delta = startY.current - e.clientY; // delta is positive when dragging UP
+      const delta = startY.current - e.clientY; 
       const newHeight = Math.max(100, Math.min(startHeight.current + delta, window.innerHeight * 0.8));
       setHeight(newHeight);
     };
@@ -68,6 +72,40 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
     document.body.style.cursor = 'row-resize';
   };
 
+  const resolvePath = (p: string) => {
+    if (p.startsWith("/")) return p;
+    if (p === ".") return cwd;
+    if (p === "..") {
+      const parts = cwd.split("/").filter(Boolean);
+      parts.pop();
+      return "/" + parts.join("/");
+    }
+    const cleanCwd = cwd === "/" ? "" : cwd;
+    return `${cleanCwd}/${p}`;
+  };
+
+  const getSubFolders = (dir: string) => {
+    const folders = new Set<string>();
+    Object.keys(files).forEach(f => {
+      if (f.startsWith(dir === "/" ? "/" : dir + "/")) {
+        const relative = f.slice(dir === "/" ? 1 : dir.length + 1);
+        const nextSlash = relative.indexOf("/");
+        if (nextSlash > -1) {
+          folders.add(relative.slice(0, nextSlash));
+        } else if (relative.endsWith(".keep")) {
+          // It's an empty folder
+          folders.add(relative.replace(".keep", ""));
+        }
+      }
+    });
+    return Array.from(folders);
+  };
+
+  const isFolder = (dir: string) => {
+    if (dir === "/") return true;
+    return Object.keys(files).some(f => f.startsWith(dir + "/"));
+  };
+
   const handleCommand = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -75,24 +113,106 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
     const cmd = input.trim();
     setInput("");
     
-    setLogs(prev => [...prev, { type: "command", text: `$ ${cmd}` }]);
+    setLogs(prev => [...prev, { type: "command", text: `~${cwd}$ ${cmd}` }]);
 
-    const args = cmd.split(" ").filter(Boolean);
+    // Use regex to properly split by space respecting quotes
+    const args = cmd.match(/(?:[^\s"]+|"[^"]*")+/g)?.map(arg => arg.replace(/^"|"$/g, '')) || [];
     const baseCmd = args[0].toLowerCase();
 
     switch (baseCmd) {
       case "help":
         setLogs(prev => [...prev, { 
           type: "output", 
-          text: "Available commands:\n  ls       - List workspace files\n  clear    - Clear terminal output\n  echo     - Print text\n  git      - Simulated git commands (e.g. 'git status', 'git push origin main')\n  npm      - Simulated node commands\n  theme    - Change terminal theme (dark|light|system)" 
+          text: "Available commands:\n  ls       - List workspace files\n  cd       - Change directory\n  touch    - Create a new file\n  mkdir    - Create a new directory\n  rm       - Remove a file or directory\n  mv       - Rename or move a file/directory\n  cat      - Print file content\n  clear    - Clear terminal output\n  echo     - Print text\n  theme    - Change terminal theme (dark|light|system)\n  git      - Simulated git commands\n  npm      - Simulated node commands" 
         }]);
         break;
       case "clear":
         setLogs([]);
         break;
+      case "cd":
+        if (!args[1] || args[1] === "~" || args[1] === "/") {
+          setCwd("/");
+        } else {
+          const target = resolvePath(args[1]);
+          if (isFolder(target)) {
+            setCwd(target);
+          } else {
+            setLogs(prev => [...prev, { type: "error", text: `cd: no such file or directory: ${args[1]}` }]);
+          }
+        }
+        break;
+      case "pwd":
+        setLogs(prev => [...prev, { type: "output", text: `/workspace${cwd === '/' ? '' : cwd}` }]);
+        break;
       case "ls":
-        const fileNames = Object.keys(files).map(f => f.replace(/^\//, '')).join("  ");
-        setLogs(prev => [...prev, { type: "output", text: fileNames || "(empty directory)" }]);
+        const currentDirContent = new Set<string>();
+        Object.keys(files).forEach(f => {
+          const prefix = cwd === "/" ? "/" : cwd + "/";
+          if (f.startsWith(prefix)) {
+            const rel = f.slice(prefix.length);
+            const firstPart = rel.split("/")[0];
+            if (firstPart.endsWith(".keep")) {
+              currentDirContent.add(firstPart.replace(".keep", "") + "/");
+            } else if (rel.includes("/")) {
+              currentDirContent.add(firstPart + "/");
+            } else {
+              currentDirContent.add(firstPart);
+            }
+          }
+        });
+        const outFiles = Array.from(currentDirContent).join("  ");
+        setLogs(prev => [...prev, { type: "output", text: outFiles || "(empty)" }]);
+        break;
+      case "cat":
+        if (args[1]) {
+          const target = resolvePath(args[1]);
+          if (files[target] !== undefined) {
+            setLogs(prev => [...prev, { type: "output", text: files[target] }]);
+          } else {
+            setLogs(prev => [...prev, { type: "error", text: `cat: ${args[1]}: No such file or directory` }]);
+          }
+        } else {
+          setLogs(prev => [...prev, { type: "error", text: "cat: missing operand" }]);
+        }
+        break;
+      case "touch":
+        if (args[1] && onFileCreate) {
+          onFileCreate(resolvePath(args[1]));
+        } else if (!args[1]) {
+          setLogs(prev => [...prev, { type: "error", text: "touch: missing file operand" }]);
+        }
+        break;
+      case "mkdir":
+        if (args[1] && onFileCreate) {
+          onFileCreate(resolvePath(args[1]) + "/.keep");
+        } else if (!args[1]) {
+          setLogs(prev => [...prev, { type: "error", text: "mkdir: missing operand" }]);
+        }
+        break;
+      case "rm":
+        if (args[1] && onFileDelete) {
+          const isRecursive = args[1] === "-rf" || args[1] === "-r";
+          const targetArg = isRecursive ? args[2] : args[1];
+          if (!targetArg) {
+            setLogs(prev => [...prev, { type: "error", text: "rm: missing operand" }]);
+            break;
+          }
+          const target = resolvePath(targetArg);
+          if (isFolder(target) && !isRecursive) {
+            setLogs(prev => [...prev, { type: "error", text: `rm: ${targetArg}: is a directory (use -rf)` }]);
+          } else {
+            onFileDelete(target);
+          }
+        } else if (!args[1]) {
+          setLogs(prev => [...prev, { type: "error", text: "rm: missing operand" }]);
+        }
+        break;
+      case "mv":
+        if (args[1] && args[2] && onFileRename) {
+          onFileRename(resolvePath(args[1]), resolvePath(args[2]));
+        } else {
+          setLogs(prev => [...prev, { type: "error", text: "mv: missing file operand" }]);
+        }
         break;
       case "echo":
         setLogs(prev => [...prev, { type: "output", text: args.slice(1).join(" ") }]);
@@ -154,7 +274,7 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
     } else if (subCmd === "commit") {
       setLogs(prev => [...prev, { type: "output", text: "[main 4c3d2e1] Simulated commit\n 2 files changed, 42 insertions(+), 1 deletion(-)" }]);
     } else if (subCmd === "add") {
-      setLogs(prev => [...prev, { type: "output", text: "" }]); // git add doesn't output anything on success
+      setLogs(prev => [...prev, { type: "output", text: "" }]); 
     } else if (subCmd === "log") {
       setLogs(prev => [...prev, { type: "output", text: "commit 4c3d2e1 (HEAD -> main)\nAuthor: Mantra User <user@mantracode.dev>\nDate:   Just now\n\n    Simulated commit\n\ncommit a1b2c3d\nAuthor: Mantra User <user@mantracode.dev>\nDate:   An hour ago\n\n    Initial commit" }]);
     } else if (subCmd === "--help" || subCmd === "help") {
@@ -173,13 +293,11 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
       style={{ height: isExpanded ? '50vh' : `${height}px` }}
       className={`flex flex-col shadow-2xl z-30 relative shrink-0 border-t ${isDark ? "bg-slate-950 border-slate-700/50" : "bg-slate-100 border-slate-300"} ${isExpanded ? "transition-all duration-300" : ""}`}
     >
-      {/* Resizer Handle */}
       <div 
         onMouseDown={handleMouseDown}
         className="h-1.5 w-full bg-transparent hover:bg-pink-500 cursor-row-resize shrink-0 transition-colors absolute top-0 left-0 right-0 z-40"
       />
       
-      {/* Terminal Header */}
       <div className={`flex items-center justify-between px-4 py-2 border-b shrink-0 select-none ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-200 border-slate-300"}`}>
         <div className="flex items-center gap-2">
           <TerminalIcon size={14} className={`text-slate-500 ${isDark ? "text-slate-400" : ""}`} />
@@ -195,7 +313,6 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
         </div>
       </div>
 
-      {/* Terminal Body */}
       <div 
         className="flex-1 overflow-y-auto p-3 font-mono text-xs sm:text-sm custom-scroll cursor-text"
         onClick={() => inputRef.current?.focus()}
@@ -213,10 +330,9 @@ export default function IDETerminal({ onClose, files, roomId }: IDETerminalProps
           ))}
         </div>
         
-        {/* Input Line */}
         <form onSubmit={handleCommand} className={`flex items-center gap-2 ${isDark ? "text-slate-300" : "text-slate-800"}`}>
           <ChevronRight size={14} className={`shrink-0 ${isDark ? "text-pink-500" : "text-pink-600"}`} />
-          <span className={`font-bold shrink-0 ${isDark ? "text-blue-400" : "text-blue-600"}`}>~/workspace</span>
+          <span className={`font-bold shrink-0 ${isDark ? "text-blue-400" : "text-blue-600"}`}>~{cwd === '/' ? '' : cwd}</span>
           <span className="text-slate-500 shrink-0">$</span>
           <input
             ref={inputRef}

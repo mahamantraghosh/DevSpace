@@ -5,6 +5,7 @@ import { Play, RotateCw, Terminal, Trash2, Eye } from "lucide-react";
 
 interface LivePreviewProps {
   files?: Record<string, string>;
+  activeFile?: string;
 }
 
 interface LogEntry {
@@ -13,7 +14,7 @@ interface LogEntry {
   timestamp: string;
 }
 
-export default function LivePreview({ files = {} }: LivePreviewProps) {
+export default function LivePreview({ files = {}, activeFile }: LivePreviewProps) {
   const [srcDoc, setSrcDoc] = useState("");
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isConsoleOpen, setIsConsoleOpen] = useState(false);
@@ -116,7 +117,7 @@ export default function LivePreview({ files = {} }: LivePreviewProps) {
       updatePreview();
     }, 800);
     return () => clearTimeout(timer);
-  }, [files]);
+  }, [files, activeFile]);
 
   // Listen to messages from the Iframe sandbox console
   useEffect(() => {

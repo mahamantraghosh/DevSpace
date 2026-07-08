@@ -84,21 +84,21 @@ export async function POST(req: Request) {
         content = blobData.content;
       }
       
-      files[`/${node.path}`] = content;
+      files[`/${repo}/${node.path}`] = content;
     });
 
     await Promise.all(blobPromises);
 
     // Ensure we have package.json or at least an index.js/html if empty
     if (Object.keys(files).length === 0) {
-      files["/README.md"] = "# Empty Repository";
+      files[`/${repo}/README.md`] = "# Empty Repository";
     }
 
     // Save to Redis under the room ID
     const rawRoom = await redis.get(`room:${roomId}`);
     if (rawRoom) {
       const room = typeof rawRoom === "string" ? JSON.parse(rawRoom) : rawRoom;
-      room.code = files;
+      room.code = { ...(room.code || {}), ...files };
       room.githubMeta = { owner, repo, branch };
       await redis.set(`room:${roomId}`, JSON.stringify(room));
     } else {

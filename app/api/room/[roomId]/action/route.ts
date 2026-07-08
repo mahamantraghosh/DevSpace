@@ -43,6 +43,37 @@ export async function POST(
           await redis.set(`room:${roomId}`, JSON.stringify(room));
         }
       }
+    } else if (type === "file-rename") {
+      const rawRoom = await redis.get(`room:${roomId}`);
+      if (rawRoom) {
+        const room = typeof rawRoom === "string" ? JSON.parse(rawRoom) : rawRoom;
+        if (room.code) {
+          if (payload.isFolder) {
+            Object.keys(room.code).forEach(key => {
+              if (key.startsWith(payload.oldPath + "/")) {
+                const newKey = payload.newPath + key.slice(payload.oldPath.length);
+                room.code[newKey] = room.code[key];
+                delete room.code[key];
+              }
+            });
+          } else {
+            if (room.code[payload.oldPath] !== undefined) {
+              room.code[payload.newPath] = room.code[payload.oldPath];
+              delete room.code[payload.oldPath];
+            }
+          }
+          await redis.set(`room:${roomId}`, JSON.stringify(room));
+        }
+      }
+    } else if (type === "files-import") {
+      const rawRoom = await redis.get(`room:${roomId}`);
+      if (rawRoom) {
+        const room = typeof rawRoom === "string" ? JSON.parse(rawRoom) : rawRoom;
+        if (room.code) {
+          room.code = { ...room.code, ...payload.files };
+          await redis.set(`room:${roomId}`, JSON.stringify(room));
+        }
+      }
     } else if (type === "send-message") {
 async function generateAIResponse(roomId: string, userText: string, pusherServer: any, redis: any) {
   try {
