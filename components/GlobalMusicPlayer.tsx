@@ -191,7 +191,7 @@ export default function GlobalMusicPlayer() {
 
   return (
     <div 
-      className={`fixed z-50 flex items-center bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-full shadow-lg shadow-pink-500/10 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-500 overflow-hidden group select-none touch-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-105'} ${isExpanded ? 'max-w-[350px] p-2 pr-4 gap-3' : 'max-w-[56px] p-2 gap-0'}`}
+      className={`fixed z-50 flex items-center bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-white/40 dark:border-slate-700/50 rounded-full shadow-lg shadow-pink-500/10 hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-500 overflow-hidden group select-none touch-none light-liquid-glass ${isDragging ? 'cursor-grabbing' : 'cursor-grab hover:scale-105'} ${isExpanded ? 'max-w-[350px] p-2 pr-4 gap-3' : 'max-w-[56px] p-2 gap-0'}`}
       style={{ left: `${position.x}px`, bottom: `${position.y}px` }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -258,7 +258,7 @@ export default function GlobalMusicPlayer() {
           <button 
             onPointerDown={(e) => e.stopPropagation()}
             onClick={handlePrev}
-            className="p-1.5 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
+            className="p-1.5 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer liquid-button"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
           </button>
@@ -266,7 +266,7 @@ export default function GlobalMusicPlayer() {
           <button 
             onPointerDown={(e) => e.stopPropagation()}
             onClick={togglePlay}
-            className="p-1.5 rounded-full text-slate-800 dark:text-slate-200 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
+            className="p-1.5 rounded-full text-slate-800 dark:text-slate-200 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer liquid-button"
           >
             {isPlaying ? (
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
@@ -278,7 +278,7 @@ export default function GlobalMusicPlayer() {
           <button 
             onPointerDown={(e) => e.stopPropagation()}
             onClick={handleNext}
-            className="p-1.5 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer"
+            className="p-1.5 rounded-full text-slate-500 hover:text-pink-600 hover:bg-pink-100 dark:hover:bg-pink-900/30 transition-all cursor-pointer liquid-button"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
           </button>

@@ -16,7 +16,7 @@ export default function NavbarThemeToggle() {
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       className="flex flex-col items-center justify-center gap-1.5 group mt-1.5"
     >
-      <div className={`w-14 h-7 rounded-full relative shadow-inner border-[1.5px] transition-all duration-300 flex items-center px-1 ${mounted && theme === 'dark' ? 'bg-slate-800/80 border-slate-500 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]' : 'bg-transparent border-white/60 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]'}`}>
+      <div className={`w-14 h-7 rounded-full relative shadow-inner border-[1.5px] transition-all duration-300 flex items-center px-1 ${mounted && theme === 'dark' ? 'bg-slate-800/80 border-slate-500 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]' : 'bg-transparent border-slate-400 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]'}`}>
         <div className={`w-5 h-5 flex items-center justify-center transform transition-transform duration-300 ${mounted && theme === 'dark' ? 'translate-x-7' : 'translate-x-0'}`}>
            <span className="text-[14px] leading-none select-none drop-shadow-md">{mounted && theme === 'dark' ? '🌜' : '🌞'}</span>
         </div>

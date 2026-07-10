@@ -283,7 +283,7 @@ export default function DashboardPage() {
             {rooms.map((room) => {
               const url = `${window.location.origin}/room/${room.roomId}`;
               return (
-                <div key={room.roomId} className="bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-600/60 p-6 shadow-xl shadow-pink-500/5 hover:bg-white/30 dark:hover:bg-slate-900/40 hover:scale-[1.02] shadow-inner transition-all group flex flex-col justify-between h-56 relative overflow-hidden">
+                <div key={room.roomId} className="bg-white/20 dark:bg-slate-900/30 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-600/60 p-6 shadow-xl shadow-pink-500/5 hover:bg-white/30 dark:hover:bg-slate-900/40 hover:scale-[1.02] shadow-inner transition-all group flex flex-col justify-between h-56 relative overflow-hidden light-liquid-glass">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-400 to-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                   <div>

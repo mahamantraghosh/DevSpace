@@ -16,8 +16,8 @@ export async function GET(req: Request) {
   const scope = "repo user";
   
   // We can pass a state parameter to prevent CSRF, or just to pass back where we should redirect
-  // For simplicity, we just redirect to the callback
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/github/callback`;
+  const url = new URL(req.url);
+  const redirectUri = `${url.protocol}//${url.host}/api/github/callback`;
   
   const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}`;
 

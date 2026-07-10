@@ -147,3 +147,63 @@ body {
 
 .dark .bg-yellow-50 { background-color: rgba(66, 32, 6, 0.8) !important; }
 .dark .border-yellow-200 { border-color: rgba(113, 63, 18, 0.5) !important; }
+
+
+@layer utilities {
+  :root:not(.dark) .light-liquid-glass:not(.absolute):not(.fixed):not(.sticky) {
+    position: relative;
+  }
+
+  :root:not(.dark) .light-liquid-glass {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(32px) saturate(220%) contrast(110%);
+    -webkit-backdrop-filter: blur(32px) saturate(220%) contrast(110%);
+    z-index: 10;
+  }
+
+  :root:not(.dark) .light-liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(120% 120% at 50% 0%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.05) 30%, rgba(255, 255, 255, 0) 100%);
+    box-shadow: 
+      inset 0px 2px 4px rgba(255, 255, 255, 1),
+      inset 0px -2px 6px rgba(255, 255, 255, 0.4),
+      inset 2px 0px 4px rgba(255, 255, 255, 0.2),
+      inset -2px 0px 4px rgba(255, 255, 255, 0.2);
+    mix-blend-mode: screen;
+    z-index: -1;
+  }
+
+  :root:not(.dark) .liquid-button:not(.absolute):not(.fixed):not(.sticky) {
+    position: relative;
+  }
+
+  :root:not(.dark) .liquid-button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 20px rgba(236, 72, 153, 0.15);
+    backdrop-filter: blur(20px) saturate(200%) contrast(110%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%) contrast(110%);
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  :root:not(.dark) .liquid-button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(150% 120% at 50% 0%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.1) 40%, rgba(255, 255, 255, 0) 100%);
+    box-shadow: 
+      inset 0px 2px 4px rgba(255, 255, 255, 1),
+      inset 0px -2px 4px rgba(255, 255, 255, 0.5);
+    mix-blend-mode: screen;
+    z-index: -1;
+  }
+}
