@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import { createSession } from "@/lib/auth";
 import { redis } from "@/lib/redis";
+import crypto from "crypto";
 
 export async function GET(req: Request) {
-  const session = await getSession();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
 
   if (error) {
-    return NextResponse.redirect(new URL("/dashboard?error=" + error, req.url));
+    return NextResponse.redirect(new URL("/login?error=" + error, req.url));
   }
 
   if (!code) {
@@ -45,12 +41,12 @@ export async function GET(req: Request) {
     const tokenData = await tokenResponse.json();
 
     if (tokenData.error) {
-      return NextResponse.redirect(new URL("/dashboard?error=" + tokenData.error, req.url));
+      return NextResponse.redirect(new URL("/login?error=" + tokenData.error, req.url));
     }
 
     const accessToken = tokenData.access_token;
 
-    // Fetch user profile from github to get their github username (optional but good for UI)
+    // Fetch user profile from github
     const userResponse = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -59,16 +55,57 @@ export async function GET(req: Request) {
     });
     
     const githubUser = await userResponse.json();
+    
+    // Fetch user emails from github
+    const emailResponse = await fetch("https://api.github.com/user/emails", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+    
+    const emails = await emailResponse.json();
+    const primaryEmailObj = Array.isArray(emails) ? emails.find(e => e.primary) : null;
+    const email = primaryEmailObj ? primaryEmailObj.email : (githubUser.email || `${githubUser.login}@github.com`);
+    
+    const normalizedEmail = email.toLowerCase();
+    
+    // Check if user exists in our DB, if not create one
+    const existingUserStr = await redis.get(`user:${normalizedEmail}`);
+    let user;
+    
+    if (existingUserStr) {
+      if (typeof existingUserStr === 'string') {
+        user = JSON.parse(existingUserStr);
+      } else {
+        user = existingUserStr;
+      }
+    } else {
+      user = {
+        id: crypto.randomUUID(),
+        username: githubUser.login,
+        email: normalizedEmail,
+        createdAt: new Date().toISOString(),
+        authProvider: 'github',
+        githubId: githubUser.id
+      };
+      await redis.set(`user:${normalizedEmail}`, JSON.stringify(user));
+    }
 
-    // Store the access token and github username in Redis linked to the user's ID/email
-    await redis.set(`user:${session.email}:github_token`, accessToken);
-    await redis.set(`user:${session.email}:github_username`, githubUser.login);
+    // Create session
+    await createSession({
+      id: user.id,
+      username: user.username,
+      email: user.email
+    });
 
-    // Redirect back to dashboard, maybe we should redirect to the IDE room if they were in one?
-    // We'll just redirect to dashboard for now, or they can just close the popup.
-    return NextResponse.redirect(new URL("/dashboard?github=connected", req.url));
+    // Store the access token and github username in Redis linked to the user's email
+    await redis.set(`user:${normalizedEmail}:github_token`, accessToken);
+    await redis.set(`user:${normalizedEmail}:github_username`, githubUser.login);
+
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   } catch (error) {
     console.error("GitHub Auth Error:", error);
-    return NextResponse.redirect(new URL("/dashboard?error=github_auth_failed", req.url));
+    return NextResponse.redirect(new URL("/login?error=github_auth_failed", req.url));
   }
 }
