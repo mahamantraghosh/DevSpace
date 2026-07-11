@@ -1,21 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import toast from "react-hot-toast";
 import SiteLogo from "@/components/SiteLogo";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   
   const [loading, setLoading] = useState(false);
   const [showEmailLogin, setShowEmailLogin] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      toast.error(error.replace(/_/g, " "), { id: "login_error" });
+    }
+  }, [searchParams]);
 
   const handleGithubLogin = () => {
     setLoading(true);
@@ -140,5 +148,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="dark min-h-screen flex items-center justify-center bg-slate-900 text-white"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

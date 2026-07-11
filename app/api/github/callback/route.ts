@@ -51,16 +51,22 @@ export async function GET(req: Request) {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: "application/vnd.github.v3+json",
+        "User-Agent": "MantraCode-App",
       },
     });
     
     const githubUser = await userResponse.json();
+    if (!userResponse.ok) {
+      console.error("Failed to fetch github user:", githubUser);
+      return NextResponse.redirect(new URL("/login?error=github_user_fetch_failed", req.url));
+    }
     
     // Fetch user emails from github
     const emailResponse = await fetch("https://api.github.com/user/emails", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: "application/vnd.github.v3+json",
+        "User-Agent": "MantraCode-App",
       },
     });
     
