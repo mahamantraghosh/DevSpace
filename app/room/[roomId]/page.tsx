@@ -4,7 +4,7 @@ import { use, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Pusher, { PresenceChannel } from "pusher-js";
-import { Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check, AlertCircle, Lock, GitBranch, Terminal } from "lucide-react";
+import { Users, MessageSquare, LogOut, Loader2, Sparkles, Copy, Check, AlertCircle, Lock, GitBranch, Terminal, Download } from "lucide-react";
 import PlaygroundEditor from "@/components/PlaygroundEditor";
 import LivePreview from "@/components/LivePreview";
 import ChatPanel from "@/components/ChatPanel";
@@ -302,6 +302,19 @@ export default function RoomPage() {
       }
     };
   }, [authLoading, username, roomId, roomPassword]);
+
+  const handleDownloadFile = () => {
+    if (!activeFile || !files[activeFile]) return;
+    const blob = new Blob([files[activeFile]], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = activeFile.split('/').pop() || 'download';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const handleCopyLink = () => {
     const shareUrl = window.location.href;
@@ -682,7 +695,17 @@ export default function RoomPage() {
                   </button>
                 ))}
             </div>
-            <div className="absolute right-0 top-0 bottom-0 flex items-center px-4 bg-gradient-to-l from-slate-50 via-slate-50 to-transparent">
+            <div className="absolute right-0 top-0 bottom-0 flex items-center px-4 bg-gradient-to-l from-slate-50 via-slate-50 to-transparent gap-2">
+              {activeFile && (
+                <button 
+                  onClick={handleDownloadFile}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition text-slate-600 bg-white border border-slate-200 shadow-sm hover:bg-slate-50 hover:text-pink-600"
+                  title="Download File"
+                >
+                  <Download size={14} />
+                  <span className="hidden sm:inline">Download</span>
+                </button>
+              )}
               {activeFile && (
                 <button 
                   onClick={() => setIsSaved(true)} 
